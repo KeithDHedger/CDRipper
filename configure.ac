@@ -16,6 +16,12 @@ AC_SUBST(LDFLAGS)
 
 CFLAGS=-Wall
 AC_SUBST(CFLAGS)
+glib-2.0
+
+GLIB_MODULES="glib-2.0 >= 2.30.0"
+PKG_CHECK_MODULES(GLIB, $GLIB_MODULES)
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GLIB_LIBS)
 
 AC_OUTPUT(Makefile GetCoverArt/app/Makefile GetCoverArt/debug/Makefile)
 
