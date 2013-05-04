@@ -1,0 +1,6 @@
+#|/bin/bash
+
+shopt -s nullglob
+cd "GetCoverArt/src"
+csrclst=$(echo "../src/*.c" "../src/*.cpp")
+echo COMMONSRC = $csrclst > ../sources
