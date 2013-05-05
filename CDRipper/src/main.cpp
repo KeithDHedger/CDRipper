@@ -1,7 +1,7 @@
 
 //Mon 31 Jul 2006 12:30:55 BST 
 //
-//GetCoverArt
+//CDRipper
 //
 
 #include <stdio.h>

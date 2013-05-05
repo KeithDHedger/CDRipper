@@ -205,12 +205,10 @@ void ripTracks(cddb_disc_t* disc)
 		{
 			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
 			g_chdir(tmpDir);
-			printf("%s\n",tmpDir);
-			return;
 			asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",tracknum,tracknum);
 			system(command);
 			g_free(command);
-			asprintf(&command,"mv audio.wav  %2.2i - %s.wav",tracknum,cddb_track_get_title(track));
+			asprintf(&command,"mv audio.wav  \"%2.2i - %s.wav\"",tracknum,cddb_track_get_title(track));
 			system(command);
 			g_free(command);
 			tracknum++;

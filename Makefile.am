@@ -1,5 +1,5 @@
 
-SUBDIRS = GetCoverArt/app GetCoverArt/debug
+SUBDIRS = CDRipper/app CDRipper/debug
 
 remake:
 	$(shell ./remakesourcelist)

@@ -1,6 +1,6 @@
 #
 #
-AC_INIT([GetCoverArt],[0.0],[PROJ],[GetCoverArt])
+AC_INIT([CDRipper],[0.0],[PROJ],[CDRipper])
 
 AC_CONFIG_HEADER([config.h])
 AC_PROG_CXX
@@ -28,5 +28,5 @@ PKG_CHECK_MODULES(CDDB, $CDDB_MODULES)
 AC_SUBST(CDDB_CFLAGS)
 AC_SUBST(CDDB_LIBS)
 
-AC_OUTPUT(Makefile GetCoverArt/app/Makefile GetCoverArt/debug/Makefile)
+AC_OUTPUT(Makefile CDRipper/app/Makefile CDRipper/debug/Makefile)
 

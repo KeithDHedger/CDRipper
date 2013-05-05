@@ -3,13 +3,13 @@
 include ../flagsandlibs
 include ../sources
 
-getcoverartdebug_SOURCES = $(COMMONSRC)
+cdripperdebug_SOURCES = $(COMMONSRC)
 
-getcoverartdebug_CFLAGS = -ggdb -O0
+cdripperdebug_CFLAGS = -ggdb -O0
 
-bin_PROGRAMS = getcoverartdebug
+bin_PROGRAMS = cdripperdebug
 
 install-exec-local:
 	cd $(DESTDIR)$(bindir) && \
-	rm getcoverartdebug
+	rm cdripperdebug
 
