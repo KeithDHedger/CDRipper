@@ -42,41 +42,6 @@ printf("Usage: getcoverart [OPTION]\n"
 	);
 }
 
-void printdetails(cddb_disc_t* disc)
-{ 
-	if(disc==NULL)
-		printf("what\n");
-   char * disc_artist=(char*)cddb_disc_get_artist(disc);
-    char * disc_title=(char*)cddb_disc_get_title(disc);
-    char * disc_genre=(char*)cddb_disc_get_genre(disc);
-    unsigned disc_year=cddb_disc_get_year(disc);
-    cddb_track_t * track;
-    int tracknum=1;
-   
- //   bool singleartist;
-
-	if(disc_artist!=NULL)
-		{
-			printf("Artist - %s\n",disc_artist);
-			artist=(char*)cddb_disc_get_artist(disc);
-		}
-	if(disc_artist!=NULL)
-		{
-			printf("Album - %s\n",disc_title);
-			album=(char*)cddb_disc_get_title(disc);
-		}
-
-	printf("Genre - %s\n",disc_genre);
-	printf("Year - %i\n",disc_year);
-
-	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
-        {
-			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
-  		tracknum++;
-        }
-
-}
-
 //GList * gbl_disc_matches=NULL;
 //static cddb_conn_t * gbl_cddb_query_thread_conn;
 //static cddb_disc_t * gbl_cddb_query_thread_disc;
@@ -151,20 +116,21 @@ int main(int argc, char **argv)
 			printf("\n");
 		}
 
-	char*	url;
-	char	buffer[16384];
-	char*	command;
-	FILE*	fp;
-cddb_disc_t* disc=NULL;
-disc=readDisc();
-if(disc==NULL)
-	{
-		printf("no disc\n");
-		return(1);
-	}
-else
-	{
-		gbl_disc_matches=lookupDisc(disc);
+	char*			url;
+	char			buffer[16384];
+	char*			command;
+	FILE*			fp;
+	cddb_disc_t*	disc=NULL;
+
+	disc=readDisc();
+	if(disc==NULL)
+		{
+			printf("no disc\n");
+			return(1);
+		}
+	else
+		{
+			gbl_disc_matches=lookupDisc(disc);
  printf("ZZZZZ\n");
 		//cddb_disc_destroy(disc);
             printf("---%i\n",g_list_length(gbl_disc_matches));
@@ -189,7 +155,7 @@ else
        //     	printf("WWWWWWWWWWW\n");
                // tempdisc=(cddb_disc_t *)curr->data;
                 tempdisc=(cddb_disc_t *)gbl_disc_matches->data;
-                printdetails(tempdisc);
+                printDetails(tempdisc);
                 
           //      gtk_list_store_append(store, &iter);
            //     gtk_list_store_set(store, &iter,
