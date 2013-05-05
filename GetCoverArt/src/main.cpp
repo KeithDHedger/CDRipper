@@ -26,6 +26,7 @@ struct option long_options[] =
 		{"artist",1,0,'a'},
 		{"album",1,0,'b'},
 		{"no-download",0,0,'n'},
+		{"rip",0,0,'r'},
 		{"version",0,0,'v'},
 		{"help",0,0,'?'},
 		{0, 0, 0, 0}
@@ -42,37 +43,23 @@ printf("Usage: getcoverart [OPTION]\n"
 	);
 }
 
-//GList * discMatches=NULL;
-//static cddb_conn_t * gbl_cddb_query_thread_conn;
-//static cddb_disc_t * gbl_cddb_query_thread_disc;
-//static int gbl_cddb_query_thread_running;
-//static int gbl_cddb_query_thread_num_matches;
-//static GThread * gbl_cddb_query_thread;
-
-//gpointer cddb_query_thread_run(gpointer data)
-//{
-//    gbl_cddb_query_thread_num_matches=cddb_query(gbl_cddb_query_thread_conn, gbl_cddb_query_thread_disc);
-//    if(gbl_cddb_query_thread_num_matches==-1)
-//        gbl_cddb_query_thread_num_matches=0;
-    
-//    g_atomic_int_set(&gbl_cddb_query_thread_running, 0);
-    
-//    return NULL;
-//}
-
-
-
-
 int main(int argc, char **argv)
 {
 	int c;
+
 	album=(char*)"";
 	artist=(char*)"";
+	tmpDir=g_dir_make_tmp("CDRipXXXXXX",NULL);
+	if(tmpDir==NULL)
+		{
+			printf("CAN'T CREATE TMP FOLDER !!!\n");
+			return(1);
+		}
 
 	while (1)
 		{
 			int option_index=0;
-			c=getopt_long(argc,argv,"v?hn:a:b:",long_options,&option_index);
+			c=getopt_long(argc,argv,"v?hnr:a:b:",long_options,&option_index);
 			if (c==-1)
 				break;
 
@@ -88,6 +75,10 @@ int main(int argc, char **argv)
 
 					case 'n':
 						download=false;
+						break;
+
+					case 'r':
+						ripit=true;
 						break;
 
 					case 'v':
@@ -121,6 +112,7 @@ int main(int argc, char **argv)
 	char*			command;
 	FILE*			fp;
 	cddb_disc_t*	disc=NULL;
+	cddb_disc_t*	tempdisc;
 
 	disc=readDisc();
 	if(disc==NULL)
@@ -128,55 +120,21 @@ int main(int argc, char **argv)
 			printf("no disc\n");
 			return(1);
 		}
-	else
+
+	discMatches=lookupDisc(disc);
+	if (discMatches==NULL)
 		{
-			discMatches=lookupDisc(disc);
-		//cddb_disc_destroy(disc);
-            printf("---%i\n",g_list_length(discMatches));
-      
-        if (discMatches==NULL)
-        	{
-        	printf("XXXXXXXXXXXXXXZZZZZZZZZ\n");
-            return(1);
-           }
-          else
-          {
-              printf("---%i\n",g_list_length(discMatches));          
-  //          if (g_list_length(discMatches) >= 1)
-  //      {
-            // fill in and show the album drop-down box
-         //   GtkListStore * store=gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
-         //   GtkTreeIter iter;
-    //        GList * curr;
-            cddb_disc_t * tempdisc;
-     //        for (curr=g_list_first(discMatches); curr != NULL; curr=g_list_next(curr))
-      //      {
-       //     	printf("WWWWWWWWWWW\n");
-               // tempdisc=(cddb_disc_t *)curr->data;
-                tempdisc=(cddb_disc_t *)discMatches->data;
-                printDetails(tempdisc);
-                
-          //      gtk_list_store_append(store, &iter);
-           //     gtk_list_store_set(store, &iter,
-            //        0, cddb_disc_get_artist(tempdisc),
-            //        1, cddb_disc_get_title(tempdisc),
-             //       -1);
-         //   }
-          //  gtk_combo_box_set_model(GTK_COMBO_BOX(pick_disc), GTK_TREE_MODEL(store));
-           // gtk_combo_box_set_active(GTK_COMBO_BOX(pick_disc), 1);
-           // gtk_combo_box_set_active(GTK_COMBO_BOX(pick_disc), 0);
-            
-          //  gtk_widget_show(lookup_widget(win_main, "disc"));
-           // gtk_widget_show(lookup_widget(win_main, "pick_disc"));
-        }
+			printf("No matches found for disc :(\n");
+			return(1);
+		}
+	cddb_disc_destroy(disc);
 
-            
-            
-            }
-           
-		//printdetails(disc);
-	//}
+//add possible matches here
+	tempdisc=(cddb_disc_t *)discMatches->data;
+	printDetails(tempdisc);
 
+	if(ripit==true)
+		ripTracks(tempdisc);
 
 	album=g_strdelimit(album," ",'+');
 	artist=g_strdelimit(artist," ",'+');
@@ -201,7 +159,7 @@ int main(int argc, char **argv)
 		g_free(command);
 	if(url!=NULL)
 		g_free(url);
-	cddb_disc_destroy(disc);
+	
 
 	return 0;
 }
