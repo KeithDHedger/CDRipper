@@ -42,7 +42,7 @@ printf("Usage: getcoverart [OPTION]\n"
 	);
 }
 
-//GList * gbl_disc_matches=NULL;
+//GList * discMatches=NULL;
 //static cddb_conn_t * gbl_cddb_query_thread_conn;
 //static cddb_disc_t * gbl_cddb_query_thread_disc;
 //static int gbl_cddb_query_thread_running;
@@ -130,31 +130,30 @@ int main(int argc, char **argv)
 		}
 	else
 		{
-			gbl_disc_matches=lookupDisc(disc);
- printf("ZZZZZ\n");
+			discMatches=lookupDisc(disc);
 		//cddb_disc_destroy(disc);
-            printf("---%i\n",g_list_length(gbl_disc_matches));
+            printf("---%i\n",g_list_length(discMatches));
       
-        if (gbl_disc_matches==NULL)
+        if (discMatches==NULL)
         	{
         	printf("XXXXXXXXXXXXXXZZZZZZZZZ\n");
             return(1);
            }
           else
           {
-              printf("---%i\n",g_list_length(gbl_disc_matches));          
-  //          if (g_list_length(gbl_disc_matches) >= 1)
+              printf("---%i\n",g_list_length(discMatches));          
+  //          if (g_list_length(discMatches) >= 1)
   //      {
             // fill in and show the album drop-down box
          //   GtkListStore * store=gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
          //   GtkTreeIter iter;
     //        GList * curr;
             cddb_disc_t * tempdisc;
-     //        for (curr=g_list_first(gbl_disc_matches); curr != NULL; curr=g_list_next(curr))
+     //        for (curr=g_list_first(discMatches); curr != NULL; curr=g_list_next(curr))
       //      {
        //     	printf("WWWWWWWWWWW\n");
                // tempdisc=(cddb_disc_t *)curr->data;
-                tempdisc=(cddb_disc_t *)gbl_disc_matches->data;
+                tempdisc=(cddb_disc_t *)discMatches->data;
                 printDetails(tempdisc);
                 
           //      gtk_list_store_append(store, &iter);
@@ -202,6 +201,7 @@ int main(int argc, char **argv)
 		g_free(command);
 	if(url!=NULL)
 		g_free(url);
+	cddb_disc_destroy(disc);
 
 	return 0;
 }
