@@ -14,6 +14,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <gtk/gtk.h>
 
 #include "globals.h"
 #include "disc.h"

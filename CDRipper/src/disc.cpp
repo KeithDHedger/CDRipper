@@ -244,6 +244,10 @@ void doShutdown(GtkWidget* widget,gpointer data)
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,0);
 	gtk_entry_set_text((GtkEntry*)fontBox,fontAndSize);
 
+
+g_signal_connect_after(G_OBJECT(entrybox),"activate",G_CALLBACK(docSearchFromBar),(void*)entrybox);
+
+
 */
 void showCDDetails(cddb_disc_t* disc)
 {
@@ -253,13 +257,15 @@ void showCDDetails(cddb_disc_t* disc)
 	unsigned		disc_year=cddb_disc_get_year(disc);
 	cddb_track_t*	track;
 	int				tracknum=1;
+	char*			tmpstr;
 
 	GtkWindow*		window;
 	GtkWidget*		vbox;
 	GtkWidget*		hbox;
 	GtkWidget*		entrybox;
+	GtkWidget*		scrollbox;
 
-	window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	window=(GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size((GtkWindow*)window,800,600);
 	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doShutdown),NULL);
 
@@ -267,10 +273,10 @@ void showCDDetails(cddb_disc_t* disc)
 	hbox=gtk_hbox_new(false,0);
 
 //disc artist
-	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Disc Artist: "),true,true,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Artist: "),false,false,0);
 	entrybox=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 
 	if(disc_artist!=NULL)
 		{
@@ -279,19 +285,82 @@ void showCDDetails(cddb_disc_t* disc)
 			gtk_entry_set_text((GtkEntry*)entrybox,artist);
 		}
 
+//disc title
+	hbox=gtk_hbox_new(false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Album: "),false,false,0);
+	entrybox=gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+
 	if(disc_title!=NULL)
 		{
 			printf("Album - %s\n",disc_title);
 			album=(char*)cddb_disc_get_title(disc);
+			gtk_entry_set_text((GtkEntry*)entrybox,album);
 		}
 
-	printf("Genre - %s\n",disc_genre);
-	printf("Year - %i\n",disc_year);
+//genre
+	hbox=gtk_hbox_new(false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Genre: "),false,false,0);
+	entrybox=gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+
+	if(disc_genre!=NULL)
+		{
+			printf("Genre - %s\n",disc_genre);
+			gtk_entry_set_text((GtkEntry*)entrybox,disc_genre);
+		}
+			
+//year
+	hbox=gtk_hbox_new(false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Year: "),false,false,0);
+	entrybox=gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+
+	if(disc_year!=NULL)
+		{
+			printf("Year - %i\n",disc_year);
+			asprintf(&tmpstr,"%i",disc_year);
+			gtk_entry_set_text((GtkEntry*)entrybox,tmpstr);
+			g_free(tmpstr);
+		}
+
+	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),false,true,16);
 
 	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
-        {
+		{
+			if(strcasecmp(cddb_track_get_artist(track),artist)!=0)
+				{
+					hbox=gtk_hbox_new(false,0);
+					gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Track Artist: "),false,false,0);
+					entrybox=gtk_entry_new();
+					gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
+					gtk_entry_set_text((GtkEntry*)entrybox,cddb_track_get_artist(track));
+					gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+					printf("Track Artist - %s\n",cddb_track_get_artist(track));
+				}
+
+			hbox=gtk_hbox_new(false,0);
+			asprintf(&tmpstr,"Track %2.2i: ",tracknum);
+			gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new(tmpstr),false,false,0);
+			g_free(tmpstr);
+			entrybox=gtk_entry_new();
+			gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
+			gtk_entry_set_text((GtkEntry*)entrybox,cddb_track_get_title(track));
+			gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+
 			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
-			printf("Track Artist - %s\n",cddb_track_get_artist(track));
+			
   			tracknum++;
-        }
+		}
+
+	scrollbox=gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+	gtk_container_add(GTK_CONTAINER(window),scrollbox);
+	gtk_scrolled_window_add_with_viewport((GtkScrolledWindow*)scrollbox,vbox);
+
+	gtk_widget_show_all((GtkWidget*)window);
+	gtk_main();
 }
