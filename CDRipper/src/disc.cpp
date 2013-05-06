@@ -211,7 +211,7 @@ void ripTracks(GtkWidget widget,gpointer data)
 	for (int i=1;i<=numTracks;i++)
 		{
 			g_chdir(tmpDir);
-			if(gtk_toggle_button_get_active((GtkToggleButton*)ripThis)==true)
+			if(gtk_toggle_button_get_active((GtkToggleButton*)ripThis[i])==true)
 				{
 					asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",tracknum,tracknum);
 					system(command);
