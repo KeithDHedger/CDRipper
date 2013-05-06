@@ -273,7 +273,7 @@ void showCDDetails(cddb_disc_t* disc)
 	hbox=gtk_hbox_new(false,0);
 
 //disc artist
-	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Artist: "),false,false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Artist:		"),false,false,0);
 	entrybox=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
@@ -287,7 +287,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 //disc title
 	hbox=gtk_hbox_new(false,0);
-	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Album: "),false,false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Album:		"),false,false,0);
 	entrybox=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
@@ -301,7 +301,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 //genre
 	hbox=gtk_hbox_new(false,0);
-	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Genre: "),false,false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Genre:		"),false,false,0);
 	entrybox=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
@@ -309,12 +309,13 @@ void showCDDetails(cddb_disc_t* disc)
 	if(disc_genre!=NULL)
 		{
 			printf("Genre - %s\n",disc_genre);
+			genre=disc_genre;
 			gtk_entry_set_text((GtkEntry*)entrybox,disc_genre);
 		}
 			
 //year
 	hbox=gtk_hbox_new(false,0);
-	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Year: "),false,false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Year:		"),false,false,0);
 	entrybox=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
@@ -324,6 +325,7 @@ void showCDDetails(cddb_disc_t* disc)
 			printf("Year - %i\n",disc_year);
 			asprintf(&tmpstr,"%i",disc_year);
 			gtk_entry_set_text((GtkEntry*)entrybox,tmpstr);
+			year=disc_year;
 			g_free(tmpstr);
 		}
 
@@ -331,24 +333,26 @@ void showCDDetails(cddb_disc_t* disc)
 
 	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
 		{
+			hbox=gtk_hbox_new(false,0);
+			gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Track Artist:	"),false,false,0);
+			trackArtist[tracknum]=gtk_entry_new();
+			gtk_box_pack_start(GTK_BOX(hbox),trackArtist[tracknum],true,true,0);
+			gtk_entry_set_text((GtkEntry*)trackArtist[tracknum],cddb_track_get_artist(track));
+
 			if(strcasecmp(cddb_track_get_artist(track),artist)!=0)
 				{
-					hbox=gtk_hbox_new(false,0);
-					gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Track Artist: "),false,false,0);
-					entrybox=gtk_entry_new();
-					gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
-					gtk_entry_set_text((GtkEntry*)entrybox,cddb_track_get_artist(track));
 					gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
-					printf("Track Artist - %s\n",cddb_track_get_artist(track));
 				}
 
+			printf("Track Artist - %s\n",cddb_track_get_artist(track));
+
 			hbox=gtk_hbox_new(false,0);
-			asprintf(&tmpstr,"Track %2.2i: ",tracknum);
+			asprintf(&tmpstr,"Track %2.2i:		",tracknum);
 			gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new(tmpstr),false,false,0);
 			g_free(tmpstr);
-			entrybox=gtk_entry_new();
-			gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
-			gtk_entry_set_text((GtkEntry*)entrybox,cddb_track_get_title(track));
+			trackName[tracknum]=gtk_entry_new();
+			gtk_box_pack_start(GTK_BOX(hbox),trackName[tracknum],true,true,0);
+			gtk_entry_set_text((GtkEntry*)trackName[tracknum],cddb_track_get_title(track));
 			gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 
 			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));

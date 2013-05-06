@@ -10,8 +10,13 @@
 #ifndef _GLOBALS_
 #define _GLOBALS_
 
-extern char*		album;
-extern char*		artist;
+extern char*			album;
+extern char*			artist;
+extern char*			genre;
+extern unsigned int		year;
+extern GtkWidget*		trackName[100];
+extern GtkWidget*		trackArtist[100];
+
 extern bool			download;
 extern const char*	cdrom;
 extern cddb_disc_t*	disc;

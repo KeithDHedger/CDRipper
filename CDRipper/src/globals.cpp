@@ -12,9 +12,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <glib.h>
+#include <gtk/gtk.h>
 
 char*			album;
 char*			artist;
+char*			genre;
+unsigned int	year;
+GtkWidget*		trackName[100];
+GtkWidget*		trackArtist[100];
+
 bool			download=true;
 const char*		cdrom="/dev/cdrom";
 cddb_disc_t*	disc=NULL;
@@ -23,8 +29,7 @@ int				numTracks;
 bool			ripit=false;
 char*			tmpDir=NULL;
 
-GList* discMatches=NULL;
-
+GList*			discMatches=NULL;
 
 //global routines
 //string sliceing

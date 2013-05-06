@@ -134,11 +134,11 @@ int main(int argc, char **argv)
 
 //add possible matches here
 	tempdisc=(cddb_disc_t *)discMatches->data;
-	printDetails(tempdisc);
+//	printDetails(tempdisc);
 	showCDDetails(tempdisc);
 
-	if(ripit==true)
-		ripTracks(tempdisc);
+//	if(ripit==true)
+//		ripTracks(tempdisc);
 
 	album=g_strdelimit(album," ",'+');
 	artist=g_strdelimit(artist," ",'+');
