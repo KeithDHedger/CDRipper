@@ -97,10 +97,23 @@ GList* lookupDisc(cddb_disc_t* disc)
 	if (connection==NULL)
 		printf("cddb_new() failed. Out of memory?");
     
-	cddb_set_server_name(connection,"freedb.freedb.org");
+//	cddb_set_server_name(connection,"freedb.freedb.org");
+	cddb_set_server_name(connection,"freedb.musicbrainz.org");
 	cddb_set_server_port(connection,8880);
-	numMatches=cddb_query(connection, disc);
+//cddb_set_server_name(connection,"freedb.musicbrainz.org");
+//cddb_set_server_port(connection,8880);
+/* HTTP settings */
+//cddb_http_enable(connection);                                /* REQ */
+//cddb_set_server_port(connection, 80);                        /* REQ */
+//cddb_set_server_name(connection, "http://freedb.musicbrainzxx.org");
+//cddb_set_http_path_query(connection, "/~cddb/cddb.cgi");
+//cddb_set_http_path_submit(connection, "/~cddb/submit.cgi");
 
+//http://freedb.musicbrainz.org:80/~cddb/cddb.cgi
+
+
+	numMatches=cddb_query(connection, disc);
+printf("-----%i------\n",numMatches);
 	// make a list of all the matches
 	for (int i=0;i<numMatches;i++)
 		{
@@ -151,6 +164,7 @@ void printDetails(cddb_disc_t* disc)
 	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
         {
 			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
+			printf("Track Artist - %s\n",cddb_track_get_artist(track));
   			tracknum++;
         }
 }
@@ -208,8 +222,8 @@ void ripTracks(cddb_disc_t* disc)
 			asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",tracknum,tracknum);
 			system(command);
 			g_free(command);
-			asprintf(&command,"mv audio.wav  \"%2.2i - %s.wav\"",tracknum,cddb_track_get_title(track));
-			system(command);
+			asprintf(&command,"%2.2i - %s.wav",tracknum,cddb_track_get_title(track));
+			g_rename("audio.wav",command);
 			g_free(command);
 			tracknum++;
 		}
