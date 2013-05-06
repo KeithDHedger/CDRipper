@@ -140,6 +140,7 @@ int main(int argc, char **argv)
 	tempdisc=(cddb_disc_t *)discMatches->data;
 //	printDetails(tempdisc);
 	showCDDetails(tempdisc);
+	return(0);
 
 //	if(ripit==true)
 //		ripTracks(tempdisc);

@@ -193,46 +193,10 @@ void printDetails(cddb_disc_t* disc)
 */
 void ripTracks(GtkWidget widget,gpointer data)
 {
-//	char*			disc_artist=(char*)cddb_disc_get_artist(disc);
-//	char*			disc_title=(char*)cddb_disc_get_title(disc);
-//	char*			disc_genre=(char*)cddb_disc_get_genre(disc);
-//	unsigned		disc_year=cddb_disc_get_year(disc);
-//	cddb_track_t*	track;
 	int				tracknum=1;
 	char*			command;
 	FILE*			fp;
 	cddb_disc_t*	disc=(cddb_disc_t*)data;
-
-//	if(disc_artist!=NULL)
-//		{
-//			printf("Artist - %s\n",disc_artist);
-//			artist=(char*)cddb_disc_get_artist(disc);
-//		}
-//	if(disc_artist!=NULL)
-//		{
-//			printf("Album - %s\n",disc_title);
-//			album=(char*)cddb_disc_get_title(disc);
-//		}
-
-//	printf("Genre - %s\n",disc_genre);
-//	printf("Year - %i\n",disc_year);
-
-//	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
-//		{
-//			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
-//			g_chdir(tmpDir);
-//			asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",tracknum,tracknum);
-//			system(command);
-//			g_free(command);
-//			asprintf(&command,"%2.2i - %s.wav",tracknum,cddb_track_get_title(track));
-//			g_rename("audio.wav",command);
-//			g_free(command);
-//			tracknum++;
-//		}
-//flac -f --fast "$INFILE"
-//ffmpeg -i "$INFILE" -q:a 0 "$MP3FILE"
-//				ffmpeg -i "$INFILE" -q:a 0 "$M4AFILE"
-//	for (int i=1;i<=numTracks;i++)
 
 	asprintf(&command,"%s/%s/%s",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
@@ -244,26 +208,27 @@ void ripTracks(GtkWidget widget,gpointer data)
 	g_mkdir_with_parents(command,493);
 	g_free(command);
 
-	for (int i=1;i<2;i++)
+	for (int i=1;i<=numTracks;i++)
 		{
 			g_chdir(tmpDir);
-			asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",tracknum,tracknum);
-			system(command);
-			g_free(command);
-			//asprintf(&command,"%2.2i - %s.wav",tracknum,trackName[i]);
-			system("flac -f --fast audio.wav");
-			system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
-			system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
-			asprintf(&command,"%s/%s/%s/%2.2i - %s.flac",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
-			g_rename("audio.flac",command);
-			g_free(command);
-			asprintf(&command,"%s/%s/%s/%2.2i - %s.m4a",MP4DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
-			g_rename("audio.m4a",command);
-			g_free(command);
-			asprintf(&command,"%s/%s/%s/%2.2i - %s.mp3",MP3DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
-			g_rename("audio.mp3",command);
-			g_free(command);
-			
+			if(gtk_toggle_button_get_active((GtkToggleButton*)ripThis)==true)
+				{
+					asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",tracknum,tracknum);
+					system(command);
+					g_free(command);
+					system("flac -f --fast audio.wav");
+					system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
+					system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
+					asprintf(&command,"%s/%s/%s/%2.2i - %s.flac",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
+					g_rename("audio.flac",command);
+					g_free(command);
+					asprintf(&command,"%s/%s/%s/%2.2i - %s.m4a",MP4DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
+					g_rename("audio.m4a",command);
+					g_free(command);
+					asprintf(&command,"%s/%s/%s/%2.2i - %s.mp3",MP3DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
+					g_rename("audio.mp3",command);
+					g_free(command);
+				}
 		}
 }
 
@@ -272,19 +237,6 @@ void doShutdown(GtkWidget* widget,gpointer data)
 	gtk_main_quit();
 }
 
-/*
-	fontBox=gtk_entry_new();
-	hbox=gtk_hbox_new(true,0);
-	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Font And Size: "),true,true,0);
-	gtk_container_add(GTK_CONTAINER(hbox),fontBox);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,0);
-	gtk_entry_set_text((GtkEntry*)fontBox,fontAndSize);
-
-
-g_signal_connect_after(G_OBJECT(entrybox),"activate",G_CALLBACK(docSearchFromBar),(void*)entrybox);
-
-
-*/
 void showCDDetails(cddb_disc_t* disc)
 {
 	char*			disc_artist=(char*)cddb_disc_get_artist(disc);
@@ -365,11 +317,7 @@ void showCDDetails(cddb_disc_t* disc)
 			year=disc_year;
 			g_free(tmpstr);
 		}
-/*
-[ ] CD           1                                                                     │ │  
-     │ │               [ ] Multi-CD     No                                                                    │ │  
-     │ │               [ ] Compilation  No
-*/
+
 //cd number
 	hbox=gtk_hbox_new(false,0);
 	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("CD Number:	"),false,false,0);
@@ -393,8 +341,7 @@ void showCDDetails(cddb_disc_t* disc)
 					gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 				}
 
-			printf("Track Artist - %s\n",cddb_track_get_artist(track));
-
+		//	printf("Track Artist - %s\n",cddb_track_get_artist(track));
 			hbox=gtk_hbox_new(false,0);
 			asprintf(&tmpstr,"Track %2.2i:		",tracknum);
 			gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new(tmpstr),false,false,0);
@@ -402,15 +349,15 @@ void showCDDetails(cddb_disc_t* disc)
 			trackName[tracknum]=gtk_entry_new();
 			gtk_box_pack_start(GTK_BOX(hbox),trackName[tracknum],true,true,0);
 			gtk_entry_set_text((GtkEntry*)trackName[tracknum],cddb_track_get_title(track));
-			gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 
-			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
-			
+			ripThis[tracknum]=gtk_check_button_new_with_label("");
+			gtk_box_pack_start(GTK_BOX(hbox),ripThis[tracknum],false,false,0);
+
+			gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+		//	printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
   			tracknum++;
 		}
 
-	printf("num trCKA --%i--\n",numTracks);
-	
 	scrollbox=gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 
@@ -428,6 +375,7 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
 	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(ripTracks),(void*)disc);
 	button=gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(doShutdown),NULL);
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
 	gtk_box_pack_start(GTK_BOX(windowvbox),hbox,false,true,0);
 

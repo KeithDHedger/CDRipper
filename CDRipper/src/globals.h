@@ -20,6 +20,7 @@ extern char*			genre;
 extern unsigned int		year;
 extern GtkWidget*		trackName[100];
 extern GtkWidget*		trackArtist[100];
+extern GtkWidget*		ripThis[100];
 extern GtkWidget*		albumEntry;
 extern GtkWidget*		artistEntry;
 extern GtkWidget*		genreEntry;
