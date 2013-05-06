@@ -129,9 +129,12 @@ int main(int argc, char **argv)
 		}
 	cddb_disc_destroy(disc);
 
+	gtk_init(&argc,&argv);
+
 //add possible matches here
 	tempdisc=(cddb_disc_t *)discMatches->data;
 	printDetails(tempdisc);
+	showCDDetails(tempdisc);
 
 	if(ripit==true)
 		ripTracks(tempdisc);

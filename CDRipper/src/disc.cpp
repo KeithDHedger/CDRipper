@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+#include <gtk/gtk.h>
 
 #include "globals.h"
 
@@ -228,4 +229,69 @@ void ripTracks(cddb_disc_t* disc)
 			tracknum++;
 		}
 
+}
+
+void doShutdown(GtkWidget* widget,gpointer data)
+{
+	gtk_main_quit();
+}
+
+/*
+	fontBox=gtk_entry_new();
+	hbox=gtk_hbox_new(true,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Font And Size: "),true,true,0);
+	gtk_container_add(GTK_CONTAINER(hbox),fontBox);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,0);
+	gtk_entry_set_text((GtkEntry*)fontBox,fontAndSize);
+
+*/
+void showCDDetails(cddb_disc_t* disc)
+{
+	char*			disc_artist=(char*)cddb_disc_get_artist(disc);
+	char*			disc_title=(char*)cddb_disc_get_title(disc);
+	char*			disc_genre=(char*)cddb_disc_get_genre(disc);
+	unsigned		disc_year=cddb_disc_get_year(disc);
+	cddb_track_t*	track;
+	int				tracknum=1;
+
+	GtkWindow*		window;
+	GtkWidget*		vbox;
+	GtkWidget*		hbox;
+	GtkWidget*		entrybox;
+
+	window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size((GtkWindow*)window,800,600);
+	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doShutdown),NULL);
+
+	vbox=gtk_vbox_new(false,0);
+	hbox=gtk_hbox_new(false,0);
+
+//disc artist
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Disc Artist: "),true,true,0);
+	entrybox=gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(hbox),entrybox,true,true,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,0);
+
+	if(disc_artist!=NULL)
+		{
+			printf("Artist - %s\n",disc_artist);
+			artist=(char*)cddb_disc_get_artist(disc);
+			gtk_entry_set_text((GtkEntry*)entrybox,artist);
+		}
+
+	if(disc_title!=NULL)
+		{
+			printf("Album - %s\n",disc_title);
+			album=(char*)cddb_disc_get_title(disc);
+		}
+
+	printf("Genre - %s\n",disc_genre);
+	printf("Year - %i\n",disc_year);
+
+	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
+        {
+			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
+			printf("Track Artist - %s\n",cddb_track_get_artist(track));
+  			tracknum++;
+        }
 }

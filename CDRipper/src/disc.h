@@ -14,5 +14,6 @@ cddb_disc_t* readDisc(void);
 GList * lookupDisc(cddb_disc_t * disc);
 void printDetails(cddb_disc_t* disc);
 void ripTracks(cddb_disc_t* disc);
+void showCDDetails(cddb_disc_t* disc);
 
 #endif
