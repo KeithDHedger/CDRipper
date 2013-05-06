@@ -20,6 +20,11 @@ char*			genre;
 unsigned int	year;
 GtkWidget*		trackName[100];
 GtkWidget*		trackArtist[100];
+GtkWidget*		albumEntry;
+GtkWidget*		artistEntry;
+GtkWidget*		genreEntry;
+GtkWidget*		yearEntry;
+GtkWidget*		cdEntry;
 
 bool			download=true;
 const char*		cdrom="/dev/cdrom";

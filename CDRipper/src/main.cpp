@@ -57,6 +57,10 @@ int main(int argc, char **argv)
 			return(1);
 		}
 
+//	g_mkdir_with_parents(FLACDIR,493);
+//	g_mkdir_with_parents(MP4DIR,493);
+//	g_mkdir_with_parents(MP3DIR,493);
+
 	while (1)
 		{
 			int option_index=0;
