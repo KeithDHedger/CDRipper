@@ -160,7 +160,9 @@ int main(int argc, char **argv)
 	if(url!=NULL)
 		g_free(url);
 	
-
+	asprintf(&command,"rm -r %s",tmpDir);
+	system(command);
+	g_free(command);
 	return 0;
 }
 
