@@ -34,6 +34,7 @@ int				startTrack;
 int				numTracks;
 bool			ripit=false;
 char*			tmpDir=NULL;
+bool			startSelect=false;
 
 GList*			discMatches=NULL;
 

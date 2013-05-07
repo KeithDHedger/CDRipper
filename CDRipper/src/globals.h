@@ -27,14 +27,16 @@ extern GtkWidget*		genreEntry;
 extern GtkWidget*		yearEntry;
 extern GtkWidget*		cdEntry;
 
-extern bool			download;
-extern const char*	cdrom;
-extern cddb_disc_t*	disc;
-extern int			startTrack;
-extern int			numTracks;
-extern GList*		discMatches;
-extern bool			ripit;
-extern char*		tmpDir;
+extern bool				download;
+extern const char*		cdrom;
+extern cddb_disc_t*		disc;
+extern int				startTrack;
+extern int				numTracks;
+extern bool				startSelect;
+
+extern GList*			discMatches;
+extern bool				ripit;
+extern char*			tmpDir;
 
 char* sliceStrLen(char* srcstring,char* startstr,int len);
 char* sliceLen(char* srcstring,int tmpstartchar,int len);

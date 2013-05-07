@@ -237,6 +237,14 @@ void doShutdown(GtkWidget* widget,gpointer data)
 	gtk_main_quit();
 }
 
+void doSensitive(GtkWidget* widget,gpointer data)
+{
+	bool	sens=gtk_toggle_button_get_active((GtkToggleButton*)ripThis[(long)data]);
+
+	gtk_widget_set_sensitive(trackName[(long)data],sens);
+	gtk_widget_set_sensitive(trackArtist[(long)data],sens);
+}
+
 void showCDDetails(cddb_disc_t* disc)
 {
 	char*			disc_artist=(char*)cddb_disc_get_artist(disc);
@@ -350,8 +358,12 @@ void showCDDetails(cddb_disc_t* disc)
 			gtk_box_pack_start(GTK_BOX(hbox),trackName[tracknum],true,true,0);
 			gtk_entry_set_text((GtkEntry*)trackName[tracknum],cddb_track_get_title(track));
 
+			gtk_widget_set_sensitive(trackName[tracknum],startSelect);
+			gtk_widget_set_sensitive(trackArtist[tracknum],startSelect);
+
 			ripThis[tracknum]=gtk_check_button_new_with_label("");
 			gtk_box_pack_start(GTK_BOX(hbox),ripThis[tracknum],false,false,0);
+			g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)tracknum);
 
 			gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 		//	printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
