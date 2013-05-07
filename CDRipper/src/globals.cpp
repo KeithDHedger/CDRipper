@@ -124,6 +124,7 @@ char* sliceDeleteChar(char* srcstring,char chr)
 {
 	char*	buffer;
 	char*	destptr;
+	char*	retstr=NULL;
 
 	buffer=(char*)malloc(strlen(srcstring)+1);
 	destptr=buffer;
@@ -138,31 +139,33 @@ char* sliceDeleteChar(char* srcstring,char chr)
 				*destptr++=*srcstring++;
 		}
 	*destptr=0;
-
-	return(buffer);
+	asprintf(&retstr,"%s",buffer);
+	g_free(buffer);
+	return(retstr);
 }
 
 char* sliceDeleteRange(char* srcstring,char* chars)
 {
 	char*	buffer;
 	char*	destptr;
+	char*	retstr=NULL;
 
 	buffer=(char*)malloc(strlen(srcstring)+1);
 	destptr=buffer;
 
 	while(*srcstring!= 0)
 		{
-			if((*srcstring)==chr)
+			for(int i=0;i<strlen(chars);i++)
 				{
-					srcstring++;
+					if((*srcstring)==chars[i])
+						srcstring++;
 				}
-			else
-				*destptr++=*srcstring++;
+			*destptr++=*srcstring++;
 		}
 	*destptr=0;
-
-	return(buffer);
-
+	asprintf(&retstr,"%s",buffer);
+	g_free(buffer);
+	return(retstr);
 }
 
 
