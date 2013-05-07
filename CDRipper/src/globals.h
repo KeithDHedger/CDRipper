@@ -43,6 +43,6 @@ char* sliceLen(char* srcstring,int tmpstartchar,int len);
 char* sliceBetween(char* srcstring,char* startstr,char* endstr);
 char* slice(char* srcstring,int tmpstartchar,int tmpendchar);
 char* sliceDeleteChar(char* srcstring,char chr);
-char* sliceDeleteRange(char* srcstring,char* chars);
+char* sliceDeleteRange(char* srcstring,const char* chars);
 
 #endif

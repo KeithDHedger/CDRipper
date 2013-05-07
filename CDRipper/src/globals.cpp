@@ -144,22 +144,32 @@ char* sliceDeleteChar(char* srcstring,char chr)
 	return(retstr);
 }
 
-char* sliceDeleteRange(char* srcstring,char* chars)
+char* sliceDeleteRange(char* srcstring,const char* chars)
 {
 	char*	buffer;
 	char*	destptr;
 	char*	retstr=NULL;
+//	int		i;
+	bool	flag;
 
 	buffer=(char*)malloc(strlen(srcstring)+1);
 	destptr=buffer;
 
 	while(*srcstring!= 0)
 		{
-			for(int i=0;i<strlen(chars);i++)
+			do
 				{
-					if((*srcstring)==chars[i])
-						srcstring++;
+					flag=false;
+					for(int i=0;i<strlen(chars);i++)
+						{
+							if((*srcstring)==chars[i])
+								{
+									srcstring++;
+									flag=true;
+								}
+						}
 				}
+			while(flag==true);
 			*destptr++=*srcstring++;
 		}
 	*destptr=0;

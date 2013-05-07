@@ -227,8 +227,7 @@ void ripTracks(GtkWidget widget,gpointer data)
 					system("flac -f --fast audio.wav");
 					system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
 					system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
-					filename=g_strdup(gtk_entry_get_text((GtkEntry*)trackName[i]));
-					filename=g_strdelimit(filename," :/'&^%$!{}@;?.",'_');
+					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.()");
 
 					asprintf(&command,"%s/%s/%s/%s%2.2i %s.flac",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.flac",command);
