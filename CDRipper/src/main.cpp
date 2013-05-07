@@ -48,6 +48,14 @@ int main(int argc, char **argv)
 {
 	int c;
 
+const char* data="this: ' is : / a test";
+char* ret=NULL;
+ret=sliceDeleteChar((char*)data,' ');
+
+printf("---%s---\n",ret);
+g_free(ret);
+return 0;
+
 	album=(char*)"";
 	artist=(char*)"";
 	tmpDir=g_dir_make_tmp("CDRipXXXXXX",NULL);

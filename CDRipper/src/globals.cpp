@@ -119,3 +119,57 @@ char* sliceStrLen(char* srcstring,char* startstr,int len)
 	printf("%i\n",startchar);
 	return(sliceLen(srcstring,startchar,len));
 }
+
+char* sliceDeleteChar(char* srcstring,char chr)
+{
+	char*	buffer;
+	char*	destptr;
+
+	buffer=(char*)malloc(strlen(srcstring)+1);
+	destptr=buffer;
+
+	while(*srcstring!= 0)
+		{
+			if((*srcstring)==chr)
+				{
+					srcstring++;
+				}
+			else
+				*destptr++=*srcstring++;
+		}
+	*destptr=0;
+
+	return(buffer);
+}
+
+char* sliceDeleteRange(char* srcstring,char* chars)
+{
+	char*	buffer;
+	char*	destptr;
+
+	buffer=(char*)malloc(strlen(srcstring)+1);
+	destptr=buffer;
+
+	while(*srcstring!= 0)
+		{
+			if((*srcstring)==chr)
+				{
+					srcstring++;
+				}
+			else
+				*destptr++=*srcstring++;
+		}
+	*destptr=0;
+
+	return(buffer);
+
+}
+
+
+
+
+
+
+
+
+

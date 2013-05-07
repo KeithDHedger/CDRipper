@@ -197,6 +197,9 @@ void ripTracks(GtkWidget widget,gpointer data)
 	char*			command;
 	FILE*			fp;
 	cddb_disc_t*	disc=(cddb_disc_t*)data;
+	char*			filename=NULL;
+	char*			cdstr=g_strdup(gtk_entry_get_text((GtkEntry*)cdEntry));
+	char*			cdnum=NULL;
 
 	asprintf(&command,"%s/%s/%s",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
@@ -207,6 +210,11 @@ void ripTracks(GtkWidget widget,gpointer data)
 	asprintf(&command,"%s/%s/%s",MP3DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
 	g_free(command);
+
+	if(strchr(cdstr,'/')!=NULL)
+		asprintf(&cdnum,"%i-",atoi(cdstr));
+	else
+		asprintf(&cdnum,"%s","");
 
 	for (int i=1;i<=numTracks;i++)
 		{
@@ -219,15 +227,19 @@ void ripTracks(GtkWidget widget,gpointer data)
 					system("flac -f --fast audio.wav");
 					system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
 					system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
-					asprintf(&command,"%s/%s/%s/%2.2i - %s.flac",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
+					filename=g_strdup(gtk_entry_get_text((GtkEntry*)trackName[i]));
+					filename=g_strdelimit(filename," :/'&^%$!{}@;?.",'_');
+
+					asprintf(&command,"%s/%s/%s/%s%2.2i %s.flac",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.flac",command);
 					g_free(command);
-					asprintf(&command,"%s/%s/%s/%2.2i - %s.m4a",MP4DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
+					asprintf(&command,"%s/%s/%s/%s%2.2i %s.m4a",MP4DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.m4a",command);
 					g_free(command);
-					asprintf(&command,"%s/%s/%s/%2.2i - %s.mp3",MP3DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),i,gtk_entry_get_text((GtkEntry*)trackName[i]));
+					asprintf(&command,"%s/%s/%s/%s%2.2i %s.mp3",MP3DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.mp3",command);
 					g_free(command);
+					g_free(filename);
 				}
 		}
 }
@@ -243,6 +255,22 @@ void doSensitive(GtkWidget* widget,gpointer data)
 
 	gtk_widget_set_sensitive(trackName[(long)data],sens);
 	gtk_widget_set_sensitive(trackArtist[(long)data],sens);
+}
+
+void doCompiliation(GtkWidget* widget,gpointer data)
+{
+	bool	sens=gtk_toggle_button_get_active((GtkToggleButton*)widget);
+
+	gtk_widget_set_sensitive(artistEntry,sens);
+
+	if(sens==true)
+		{
+			gtk_entry_set_text((GtkEntry*)artistEntry,"Compilation");
+		}
+	else
+		{
+			gtk_entry_set_text((GtkEntry*)artistEntry,artist);
+		}
 }
 
 void showCDDetails(cddb_disc_t* disc)
@@ -261,6 +289,7 @@ void showCDDetails(cddb_disc_t* disc)
 	GtkWidget*		hbox;
 	GtkWidget*		scrollbox;
 	GtkWidget*		button;
+	GtkWidget*		compilation;
 
 	window=(GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size((GtkWindow*)window,800,600);
@@ -317,7 +346,7 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),yearEntry,true,true,0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 
-	if(disc_year!=NULL)
+	if(disc_year!=0)
 		{
 			printf("Year - %i\n",disc_year);
 			asprintf(&tmpstr,"%i",disc_year);
@@ -333,6 +362,15 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),cdEntry,true,true,0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 	gtk_entry_set_text((GtkEntry*)cdEntry,"1");
+
+//comp
+	hbox=gtk_hbox_new(false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Compilation:	"),false,false,0);
+	compilation=gtk_check_button_new_with_label("");
+	gtk_box_pack_start(GTK_BOX(hbox),compilation,true,true,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+	gtk_entry_set_text((GtkEntry*)cdEntry,"1");
+	g_signal_connect(G_OBJECT(compilation),"toggled",G_CALLBACK(doCompiliation),NULL);
 
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),false,true,16);
 
@@ -363,7 +401,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 			ripThis[tracknum]=gtk_check_button_new_with_label("");
 			gtk_box_pack_start(GTK_BOX(hbox),ripThis[tracknum],false,false,0);
-			g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)tracknum);
+			g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)(long)tracknum);
 
 			gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 		//	printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
