@@ -290,7 +290,7 @@ void doCompiliation(GtkWidget* widget,gpointer data)
 
 	if(sens==true)
 		{
-			gtk_entry_set_text((GtkEntry*)artistEntry,"Compilation");
+			gtk_entry_set_text((GtkEntry*)artistEntry,COMPILATIONSTRING);
 		}
 	else
 		{
@@ -315,7 +315,7 @@ void showCDDetails(cddb_disc_t* disc)
 	GtkWidget*		scrollbox;
 	GtkWidget*		button;
 	GtkWidget*		compilation;
-
+	
 	window=(GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size((GtkWindow*)window,800,600);
 	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doShutdown),NULL);
@@ -331,7 +331,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 	if(disc_artist!=NULL)
 		{
-			printf("Artist - %s\n",disc_artist);
+//			printf("Artist - %s\n",disc_artist);
 			artist=(char*)cddb_disc_get_artist(disc);
 			gtk_entry_set_text((GtkEntry*)artistEntry,artist);
 		}
@@ -345,7 +345,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 	if(disc_title!=NULL)
 		{
-			printf("Album - %s\n",disc_title);
+//			printf("Album - %s\n",disc_title);
 			album=(char*)cddb_disc_get_title(disc);
 			gtk_entry_set_text((GtkEntry*)albumEntry,album);
 		}
@@ -359,7 +359,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 	if(disc_genre!=NULL)
 		{
-			printf("Genre - %s\n",disc_genre);
+//			printf("Genre - %s\n",disc_genre);
 			genre=disc_genre;
 			gtk_entry_set_text((GtkEntry*)genreEntry,disc_genre);
 		}
@@ -373,7 +373,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 	if(disc_year!=0)
 		{
-			printf("Year - %i\n",disc_year);
+//			printf("Year - %i\n",disc_year);
 			asprintf(&tmpstr,"%i",disc_year);
 			gtk_entry_set_text((GtkEntry*)yearEntry,tmpstr);
 			year=disc_year;

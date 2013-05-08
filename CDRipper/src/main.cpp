@@ -122,12 +122,17 @@ return 0;
 			printf("\n");
 		}
 
-	char*			url;
-	char			buffer[16384];
+//	char*			url;
+	//char			buffer[16384];
 	char*			command;
-	FILE*			fp;
+	FILE*			fp=NULL;
 	cddb_disc_t*	disc=NULL;
 	cddb_disc_t*	tempdisc;
+	GString*		buffer=g_string_new(NULL);;
+	char			line[1024];
+	char*			urlmb=NULL;
+	char*			release=NULL;
+	char*			artwork;
 
 	disc=readDisc();
 	if(disc==NULL)
@@ -155,7 +160,7 @@ return 0;
 //	if(ripit==true)
 //		ripTracks(tempdisc);
 
-	int j;
+//	int j;
 
 
 	asprintf(&album,"%s",gtk_entry_get_text((GtkEntry*)albumEntry));
@@ -163,59 +168,53 @@ return 0;
 	album=g_strdelimit(album," ",'+');
 	artist=g_strdelimit(artist," ",'+');
 
-
-//	printf("AAA%sAAA\n",artist);
-//	printf("AAA%sAAA\n",album);
-	
-
 //curl -sk "http://musicbrainz.org/search?query=various+story+songs&type=release&method=indexed" > curlout
 //curl -sk "http://musicbrainz.org/release/5b3432b9-0f01-447b-8dbd-9a7f4f1bf61e/cover-art"
 //<img src="http://ecx.images-amazon.com/images/I/51LlZiD3uFL.jpg" />
-
-
 //	asprintf(&command,"curl -sk \"https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%s+%s&as_filetype=jpg&imgsz=large&rsz=1\"",artist,album);
+
 	asprintf(&command,"curl -sk \"http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed\"",artist,album);
-printf("%s\n",command);
-//return 0;
 	fp=popen(command, "r");
-//	fgets((char*)&buffer[0],16384,fp);
-//fread
-	fread((char*)buffer,1,16384,fp);
-//	printf("%s\n",(char*)buffer);
-	char* urlmb;
-	char* release;
+	g_free(command);
+	if(fp!=NULL)
+		{
+			while(fgets(line,1024,fp))
+				g_string_append_printf(buffer,"%s",line);
+			pclose(fp);
+		}
 
-	urlmb=strstr((char*)buffer,"href=\"http://musicbrainz.org/release");
-	printf("---%s--\n",urlmb);
+	urlmb=strstr(buffer->str,"href=\"http://musicbrainz.org/release");
 
-	release=sliceBetween(urlmb,"href=\"","\">");
-
-	printf("---%s--\n",release);
-
-//	char*	srcptr=(char*)buffer;
-//	while (srcptr!=NULL)
-//		{
-
-/*
-			url=sliceBetween((char*)buffer,(char*)"unescapedUrl\":\"",(char*)"\",\"");
-			if(url!=NULL)
+	if(urlmb!=NULL)
+		{
+			release=sliceBetween(urlmb,"href=\"","\">");
+			if(release!=NULL)
 				{
-					printf("%s\n",url);
-					if(download==true)
+					asprintf(&command,"curl -sk \"%s/cover-art\"",release);
+					fp=popen(command, "r");
+					g_free(command);
+
+					g_string_erase(buffer,0,-1);
+					while(fgets(line,1024,fp))
+						g_string_append_printf(buffer,"%s",line);
+					pclose(fp);
+
+					artwork=sliceBetween(buffer->str,"<img src=\"","\"");
+					if(artwork!=NULL)
 						{
-							asprintf(&command,"curl -sko folder%i.jpg %s",j,url);
+							asprintf(&command,"wget \"%s\" -O folder.jpg",artwork);
 							system(command);
+							g_free(command);
 						}
 				}
-*/
-//		}
+			}
 
-	pclose(fp);
-	if(command!=NULL)
-		g_free(command);
-	if(url!=NULL)
-		g_free(url);
-	
+	if(release!=NULL)
+		g_free(release);
+	if(artwork!=NULL)
+		g_free(artwork);
+
+	g_string_free(buffer,true);
 	asprintf(&command,"rm -r %s",tmpDir);
 	system(command);
 	g_free(command);

@@ -14,6 +14,8 @@
 #define MP4DIR "/tmp/iPod/Music"
 #define MP3DIR "/tmp/MP3s/Music"
 
+#define COMPILATIONSTRING "Various"
+
 extern char*			album;
 extern char*			artist;
 extern char*			genre;
