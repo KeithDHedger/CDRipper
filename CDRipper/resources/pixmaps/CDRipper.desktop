@@ -1,10 +1,9 @@
-
 [Desktop Entry]
 Version=1.0
 Encoding=UTF-8
-Name=KKEdit
+Name=CDRipper
 Comment=
 Terminal=false
 Type=Application
-Categories=Utility;
-Name[en_US]=KKEdit
+Categories=AudioVideo;Audio;
+Name[en_US]=CDRipper
