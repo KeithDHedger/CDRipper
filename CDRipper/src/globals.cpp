@@ -38,6 +38,9 @@ bool			startSelect=false;
 
 GList*			discMatches=NULL;
 
+bool			justQuit=false;
+bool			isCompilation=false;
+
 //global routines
 //string sliceing
 

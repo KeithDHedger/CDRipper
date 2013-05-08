@@ -46,22 +46,11 @@ printf("Usage: getcoverart [OPTION]\n"
 
 int main(int argc, char **argv)
 {
-	int c;
-/*
-const char* data="this: ' is : / a test";
-char* ret=NULL;
-ret=sliceDeleteChar((char*)data,' ');
+	int				c;
+	char*			command;
+	cddb_disc_t*	disc=NULL;
+	cddb_disc_t*	tempdisc;
 
-printf("---%s---\n",ret);
-g_free(ret);
-
-data="this: ( 1 & 2 ) ";
-ret=sliceDeleteRange((char*)data,"( )&");
-
-printf("+++%s+++\n",ret);
-g_free(ret);
-return 0;
-*/
 	album=(char*)"";
 	artist=(char*)"";
 	tmpDir=g_dir_make_tmp("CDRipXXXXXX",NULL);
@@ -122,18 +111,6 @@ return 0;
 			printf("\n");
 		}
 
-//	char*			url;
-	//char			buffer[16384];
-	char*			command;
-	FILE*			fp=NULL;
-	cddb_disc_t*	disc=NULL;
-	cddb_disc_t*	tempdisc;
-	GString*		buffer=g_string_new(NULL);;
-	char			line[1024];
-	char*			urlmb=NULL;
-	char*			release=NULL;
-	char*			artwork;
-
 	disc=readDisc();
 	if(disc==NULL)
 		{
@@ -155,66 +132,7 @@ return 0;
 	tempdisc=(cddb_disc_t *)discMatches->data;
 //	printDetails(tempdisc);
 	showCDDetails(tempdisc);
-//	return(0);
 
-//	if(ripit==true)
-//		ripTracks(tempdisc);
-
-//	int j;
-
-
-	asprintf(&album,"%s",gtk_entry_get_text((GtkEntry*)albumEntry));
-	asprintf(&artist,"%s",gtk_entry_get_text((GtkEntry*)artistEntry));
-	album=g_strdelimit(album," ",'+');
-	artist=g_strdelimit(artist," ",'+');
-
-//curl -sk "http://musicbrainz.org/search?query=various+story+songs&type=release&method=indexed" > curlout
-//curl -sk "http://musicbrainz.org/release/5b3432b9-0f01-447b-8dbd-9a7f4f1bf61e/cover-art"
-//<img src="http://ecx.images-amazon.com/images/I/51LlZiD3uFL.jpg" />
-//	asprintf(&command,"curl -sk \"https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%s+%s&as_filetype=jpg&imgsz=large&rsz=1\"",artist,album);
-
-	asprintf(&command,"curl -sk \"http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed\"",artist,album);
-	fp=popen(command, "r");
-	g_free(command);
-	if(fp!=NULL)
-		{
-			while(fgets(line,1024,fp))
-				g_string_append_printf(buffer,"%s",line);
-			pclose(fp);
-		}
-
-	urlmb=strstr(buffer->str,"href=\"http://musicbrainz.org/release");
-
-	if(urlmb!=NULL)
-		{
-			release=sliceBetween(urlmb,"href=\"","\">");
-			if(release!=NULL)
-				{
-					asprintf(&command,"curl -sk \"%s/cover-art\"",release);
-					fp=popen(command, "r");
-					g_free(command);
-
-					g_string_erase(buffer,0,-1);
-					while(fgets(line,1024,fp))
-						g_string_append_printf(buffer,"%s",line);
-					pclose(fp);
-
-					artwork=sliceBetween(buffer->str,"<img src=\"","\"");
-					if(artwork!=NULL)
-						{
-							asprintf(&command,"wget \"%s\" -O folder.jpg",artwork);
-							system(command);
-							g_free(command);
-						}
-				}
-			}
-
-	if(release!=NULL)
-		g_free(release);
-	if(artwork!=NULL)
-		g_free(artwork);
-
-	g_string_free(buffer,true);
 	asprintf(&command,"rm -r %s",tmpDir);
 	system(command);
 	g_free(command);

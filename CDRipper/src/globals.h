@@ -14,7 +14,9 @@
 #define MP4DIR "/tmp/iPod/Music"
 #define MP3DIR "/tmp/MP3s/Music"
 
+//#define COMPILATIONSTRING "Compilation"
 #define COMPILATIONSTRING "Various"
+#define COMPILATIONARTIST "Compilation"
 
 extern char*			album;
 extern char*			artist;
@@ -37,6 +39,10 @@ extern int				numTracks;
 extern bool				startSelect;
 
 extern GList*			discMatches;
+
+extern bool				justQuit;
+extern bool				isCompilation;
+
 extern bool				ripit;
 extern char*			tmpDir;
 

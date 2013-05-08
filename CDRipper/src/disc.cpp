@@ -101,20 +101,9 @@ GList* lookupDisc(cddb_disc_t* disc)
 //	cddb_set_server_name(connection,"freedb.freedb.org");
 	cddb_set_server_name(connection,"freedb.musicbrainz.org");
 	cddb_set_server_port(connection,8880);
-//cddb_set_server_name(connection,"freedb.musicbrainz.org");
-//cddb_set_server_port(connection,8880);
-/* HTTP settings */
-//cddb_http_enable(connection);                                /* REQ */
-//cddb_set_server_port(connection, 80);                        /* REQ */
-//cddb_set_server_name(connection, "http://freedb.musicbrainzxx.org");
-//cddb_set_http_path_query(connection, "/~cddb/cddb.cgi");
-//cddb_set_http_path_submit(connection, "/~cddb/submit.cgi");
-
-//http://freedb.musicbrainz.org:80/~cddb/cddb.cgi
-
 
 	numMatches=cddb_query(connection, disc);
-printf("-----%i------\n",numMatches);
+
 	// make a list of all the matches
 	for (int i=0;i<numMatches;i++)
 		{
@@ -189,8 +178,97 @@ void printDetails(cddb_disc_t* disc)
 	pclose(fp);
 	if(command!=NULL)
 		g_free(command);
+//curl -sk "http://musicbrainz.org/search?query=various+story+songs&type=release&method=indexed" > curlout
+//curl -sk "http://musicbrainz.org/release/5b3432b9-0f01-447b-8dbd-9a7f4f1bf61e/cover-art"
+//<img src="http://ecx.images-amazon.com/images/I/51LlZiD3uFL.jpg" />
+//	asprintf(&command,"curl -sk \"https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%s+%s&as_filetype=jpg&imgsz=large&rsz=1\"",artist,album);
 
 */
+
+void getAlbumArt()
+{
+	char*			command;
+	FILE*			fp=NULL;
+	GString*		buffer=g_string_new(NULL);;
+	char			line[1024];
+	char*			urlmb=NULL;
+	char*			release=NULL;
+	char*			artwork;
+	char*			flacimage;
+	char*			mp4image;
+	char*			mp3image;
+	const char*		artistfolder;
+
+	asprintf(&album,"%s",gtk_entry_get_text((GtkEntry*)albumEntry));
+	asprintf(&artist,"%s",gtk_entry_get_text((GtkEntry*)artistEntry));
+
+	if(isCompilation==true)
+		artistfolder=COMPILATIONARTIST;
+	else
+		artistfolder=artist;
+
+	asprintf(&flacimage,"%s/%s/%s/folder.jpg",FLACDIR,artistfolder,album);
+	asprintf(&mp4image,"%s/%s/%s/folder.jpg",MP4DIR,artistfolder,album);
+	asprintf(&mp3image,"%s/%s/%s/folder.jpg",MP3DIR,artistfolder,album);
+
+	album=g_strdelimit(album," ",'+');
+	artist=g_strdelimit(artist," ",'+');
+
+	asprintf(&command,"curl -sk \"http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed\"",artist,album);
+	fp=popen(command, "r");
+	g_free(command);
+	if(fp!=NULL)
+		{
+			while(fgets(line,1024,fp))
+				g_string_append_printf(buffer,"%s",line);
+			pclose(fp);
+		}
+
+	urlmb=strstr(buffer->str,"href=\"http://musicbrainz.org/release");
+	if(urlmb!=NULL)
+		{
+			release=sliceBetween(urlmb,(char*)"href=\"",(char*)"\">");
+			if(release!=NULL)
+				{
+					asprintf(&command,"curl -sk \"%s/cover-art\"",release);
+					fp=popen(command, "r");
+					g_free(command);
+
+					g_string_erase(buffer,0,-1);
+					while(fgets(line,1024,fp))
+						g_string_append_printf(buffer,"%s",line);
+					pclose(fp);
+
+					artwork=sliceBetween(buffer->str,(char*)"<img src=\"",(char*)"\"");
+					if(artwork!=NULL)
+						{
+							asprintf(&command,"wget \"%s\" -O \"%s\"",artwork,flacimage);
+							system(command);
+							g_free(command);
+							asprintf(&command,"cp \"%s\" \"%s\"",flacimage,mp4image);
+							system(command);
+							g_free(command);
+							asprintf(&command,"cp \"%s\" \"%s\"",flacimage,mp3image);
+							system(command);
+							g_free(command);
+						}
+				}
+			}
+
+	if(release!=NULL)
+		g_free(release);
+	if(artwork!=NULL)
+		g_free(artwork);
+	if(flacimage!=NULL)
+		g_free(flacimage);
+	if(mp4image!=NULL)
+		g_free(mp4image);
+	if(mp3image!=NULL)
+		g_free(mp3image);
+
+	g_string_free(buffer,true);
+}
+
 void ripTracks(GtkWidget widget,gpointer data)
 {
 	int				tracknum=1;
@@ -201,14 +279,20 @@ void ripTracks(GtkWidget widget,gpointer data)
 	char*			cdstr=g_strdup(gtk_entry_get_text((GtkEntry*)cdEntry));
 	char*			cdnum=NULL;
 	char*			tagdata;
+	const char*			artistfolder;
 
-	asprintf(&command,"%s/%s/%s",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry));
+	if(isCompilation==true)
+		artistfolder=COMPILATIONARTIST;
+	else
+		artistfolder=gtk_entry_get_text((GtkEntry*)artistEntry);
+
+	asprintf(&command,"%s/%s/%s",FLACDIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
 	g_free(command);
-	asprintf(&command,"%s/%s/%s",MP4DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry));
+	asprintf(&command,"%s/%s/%s",MP4DIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
 	g_free(command);
-	asprintf(&command,"%s/%s/%s",MP3DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry));
+	asprintf(&command,"%s/%s/%s",MP3DIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
 	g_free(command);
 
@@ -255,24 +339,33 @@ void ripTracks(GtkWidget widget,gpointer data)
 					g_free(tagdata);
 					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.");
 
-					asprintf(&command,"%s/%s/%s/%s%2.2i %s.flac",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+					asprintf(&command,"%s/%s/%s/%s%2.2i %s.flac",FLACDIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.flac",command);
 					g_free(command);
-					asprintf(&command,"%s/%s/%s/%s%2.2i %s.m4a",MP4DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+					asprintf(&command,"%s/%s/%s/%s%2.2i %s.m4a",MP4DIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.m4a",command);
 					g_free(command);
-					asprintf(&command,"%s/%s/%s/%s%2.2i %s.mp3",MP3DIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+					asprintf(&command,"%s/%s/%s/%s%2.2i %s.mp3",MP3DIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.mp3",command);
 					g_free(command);
 					g_free(filename);
 				}
 		}
+
+	getAlbumArt();
 }
 
 void doShutdown(GtkWidget* widget,gpointer data)
 {
+	justQuit=(bool)data;
 	gtk_main_quit();
 }
+
+void doNothing(GtkWidget* widget,gpointer data)
+{
+	printf("Use A Button\n");
+}
+
 
 void doSensitive(GtkWidget* widget,gpointer data)
 {
@@ -286,7 +379,8 @@ void doCompiliation(GtkWidget* widget,gpointer data)
 {
 	bool	sens=gtk_toggle_button_get_active((GtkToggleButton*)widget);
 
-	gtk_widget_set_sensitive(artistEntry,sens);
+	gtk_widget_set_sensitive(artistEntry,!sens);
+	isCompilation=sens;
 
 	if(sens==true)
 		{
@@ -296,6 +390,14 @@ void doCompiliation(GtkWidget* widget,gpointer data)
 		{
 			gtk_entry_set_text((GtkEntry*)artistEntry,artist);
 		}
+}
+
+void doSelectAll(GtkWidget* widget,gpointer data)
+{
+	bool	sens=gtk_toggle_button_get_active((GtkToggleButton*)widget);
+
+	for(int i=1;i<=numTracks;i++)
+		gtk_toggle_button_set_active((GtkToggleButton*)ripThis[i],sens);
 }
 
 void showCDDetails(cddb_disc_t* disc)
@@ -318,7 +420,7 @@ void showCDDetails(cddb_disc_t* disc)
 	
 	window=(GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size((GtkWindow*)window,800,600);
-	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doShutdown),NULL);
+	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doNothing),NULL);
 
 	vbox=gtk_vbox_new(false,0);
 	hbox=gtk_hbox_new(false,0);
@@ -331,7 +433,6 @@ void showCDDetails(cddb_disc_t* disc)
 
 	if(disc_artist!=NULL)
 		{
-//			printf("Artist - %s\n",disc_artist);
 			artist=(char*)cddb_disc_get_artist(disc);
 			gtk_entry_set_text((GtkEntry*)artistEntry,artist);
 		}
@@ -345,7 +446,6 @@ void showCDDetails(cddb_disc_t* disc)
 
 	if(disc_title!=NULL)
 		{
-//			printf("Album - %s\n",disc_title);
 			album=(char*)cddb_disc_get_title(disc);
 			gtk_entry_set_text((GtkEntry*)albumEntry,album);
 		}
@@ -359,7 +459,6 @@ void showCDDetails(cddb_disc_t* disc)
 
 	if(disc_genre!=NULL)
 		{
-//			printf("Genre - %s\n",disc_genre);
 			genre=disc_genre;
 			gtk_entry_set_text((GtkEntry*)genreEntry,disc_genre);
 		}
@@ -373,7 +472,6 @@ void showCDDetails(cddb_disc_t* disc)
 
 	if(disc_year!=0)
 		{
-//			printf("Year - %i\n",disc_year);
 			asprintf(&tmpstr,"%i",disc_year);
 			gtk_entry_set_text((GtkEntry*)yearEntry,tmpstr);
 			year=disc_year;
@@ -396,6 +494,17 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 	gtk_entry_set_text((GtkEntry*)cdEntry,"1");
 	g_signal_connect(G_OBJECT(compilation),"toggled",G_CALLBACK(doCompiliation),NULL);
+
+	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),false,true,16);
+
+//rip all
+	hbox=gtk_hbox_new(false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Rip All:"),false,false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new(""),true,false,0);
+	ripThis[0]=gtk_check_button_new_with_label("");
+	g_signal_connect(G_OBJECT(ripThis[0]),"toggled",G_CALLBACK(doSelectAll),NULL);
+	gtk_box_pack_start(GTK_BOX(hbox),ripThis[0],false,false,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
 
 	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),false,true,16);
 
@@ -449,7 +558,7 @@ void showCDDetails(cddb_disc_t* disc)
 	button=gtk_button_new_with_label("Rip CD");
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
 	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(ripTracks),(void*)disc);
-	button=gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+	button=gtk_button_new_from_stock(GTK_STOCK_QUIT);
 	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(doShutdown),NULL);
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
 	gtk_box_pack_start(GTK_BOX(windowvbox),hbox,false,true,0);
