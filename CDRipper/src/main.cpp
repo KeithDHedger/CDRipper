@@ -44,6 +44,48 @@ printf("Usage: getcoverart [OPTION]\n"
 	);
 }
 
+void init (void)
+{
+	FILE*	fd=NULL;
+	char*	filename;
+	char	buffer[1024];
+	char	name[256];
+	char	strarg[256];
+
+	flacFolder=(char*)FLACDIR;
+	mp4Folder=(char*)MP4DIR;
+	mp3Folder=(char*)MP3DIR;
+
+	asprintf(&filename,"%s/.config/cdripper.rc",getenv("HOME"));
+	fd=fopen(filename,"r");
+	if(fd!=NULL)
+		{
+			while(feof(fd)==0)
+				{
+					fgets(buffer,1024,fd);
+					sscanf(buffer,"%s %s",(char*)&name,(char*)&strarg);
+
+					if(strcasecmp(name,"flacdir")==0)
+						{
+							sscanf(buffer,"%*s %"VALIDFILENAMECHARS"s",(char*)&strarg);
+							asprintf(&flacFolder,"%s",strarg);
+						}
+					if(strcasecmp(name,"mp4dir")==0)
+						{
+							sscanf(buffer,"%*s %"VALIDFILENAMECHARS"s",(char*)&strarg);
+							asprintf(&mp4Folder,"%s",strarg);
+						}
+					if(strcasecmp(name,"mp3dir")==0)
+						{
+							sscanf(buffer,"%*s %"VALIDFILENAMECHARS"s",(char*)&strarg);
+							asprintf(&mp3Folder,"%s",strarg);
+						}
+				}
+			fclose(fd);
+		}
+	g_free(filename);
+}
+
 int main(int argc, char **argv)
 {
 	int				c;

@@ -43,6 +43,10 @@ bool			isCompilation=false;
 
 GtkWindow*		window;
 
+char*			flacFolder=NULL;
+char*			mp4Folder=NULL;
+char*			mp3Folder=NULL;
+
 //global routines
 //string sliceing
 

@@ -14,6 +14,8 @@
 #define MP4DIR "/tmp/iPod/Music"
 #define MP3DIR "/tmp/MP3s/Music"
 
+#define VALIDFILENAMECHARS "[A-Za-z0-9_-./]"
+
 #define COMPILATIONSTRING "Various"
 #define COMPILATIONARTIST "Compilation"
 #define PREFERVERSION 34
@@ -47,6 +49,10 @@ extern bool				ripit;
 extern char*			tmpDir;
 
 extern GtkWindow*		window;
+
+extern char*			flacFolder;
+extern char*			mp4Folder;
+extern char*			mp3Folder;
 
 char* sliceStrLen(char* srcstring,char* startstr,int len);
 char* sliceLen(char* srcstring,int tmpstartchar,int len);
