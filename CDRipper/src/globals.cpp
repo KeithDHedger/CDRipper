@@ -41,6 +41,8 @@ GList*			discMatches=NULL;
 bool			justQuit=false;
 bool			isCompilation=false;
 
+GtkWindow*		window;
+
 //global routines
 //string sliceing
 

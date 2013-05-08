@@ -1,5 +1,7 @@
 
 AM_CPPFLAGS =	-I$(top_srcdir) \
+			$(GTHREAD_CFLAGS) \
+			$(GDK_CFLAGS) \
 			$(GLIB_CFLAGS) \
 			$(CDDB_CFLAGS) \
 			$(GTK_CFLAGS) \
@@ -9,6 +11,8 @@ AM_CPPFLAGS =	-I$(top_srcdir) \
 			-DLIBDIR=\""${libdir}/${PACKAGE}"\"
 
 LIBS =	$(GLIB_LIBS) \
+		$(GTHREAD_LIBS) \
+		$(GDK_LIBS) \
 		$(GTK_LIBS) \
 		$(CDDB_LIBS)
 

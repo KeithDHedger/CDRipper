@@ -24,6 +24,8 @@
 
 #include "globals.h"
 
+GtkWidget*	progressWindow;
+
 cddb_disc_t* readDisc(void)
 {
 	int fd;
@@ -269,18 +271,207 @@ void getAlbumArt()
 	g_string_free(buffer,true);
 }
 
-void ripTracks(GtkWidget widget,gpointer data)
+
+GtkWidget* progressBar;
+
+
+gboolean lengthy_func_done(gpointer data)
+{
+    GtkWidget *dialog;
+
+ //   g_source_remove(GPOINTER_TO_INT(g_object_get_data((GObject*)data, "source_id")));
+    gtk_widget_destroy(GTK_WIDGET(data));
+
+//    dialog=gtk_message_dialog_new(NULL,
+ //                                   GTK_DIALOG_DESTROY_WITH_PARENT,
+ //                                   GTK_MESSAGE_INFO,
+ //                                   GTK_BUTTONS_CLOSE,
+  //                                  "Operation completed!");
+ //   gtk_dialog_run(GTK_DIALOG(dialog));
+  //  gtk_widget_destroy(dialog);
+
+    return false;
+}
+
+void makeProgressBar(void)
+{
+	GtkWidget*		vbox;
+
+	progressWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_widget_set_size_request(progressWindow,400,40);
+	gtk_window_set_deletable((GtkWindow*)progressWindow,false);
+	gtk_window_set_resizable((GtkWindow*)progressWindow,false);
+	gtk_window_set_type_hint((GtkWindow*)progressWindow,GDK_WINDOW_TYPE_HINT_DIALOG);
+	gtk_window_set_title((GtkWindow*)progressWindow,"Re-Building Database, Please Wait...");
+	vbox=gtk_vbox_new(FALSE,0);
+	progressBar=gtk_progress_bar_new();
+	gtk_progress_bar_pulse((GtkProgressBar*)progressBar);
+
+	gtk_progress_bar_set_orientation((GtkProgressBar*)progressBar,GTK_PROGRESS_LEFT_TO_RIGHT);
+
+	gtk_box_pack_start(GTK_BOX(vbox),progressBar,false,false,8);
+	gtk_container_add(GTK_CONTAINER(progressWindow),vbox);
+
+	gtk_widget_show_all(progressWindow);
+}
+
+gboolean updateBarTimer(gpointer data)
+{
+	if(GTK_IS_PROGRESS_BAR((GtkProgressBar*)data))
+		{
+			gtk_progress_bar_pulse((GtkProgressBar*)data);
+			return(true);
+		}
+	else
+		return(false);
+
+
+
+
+//	if(GTK_IS_PROGRESS_BAR((GtkProgressBar*)data))
+//		gtk_progress_bar_pulse(GTK_PROGRESS_BAR(data));
+//	if(GTK_IS_PROGRESS_BAR((GtkProgressBar*)progressBar))
+//		{
+		//	gtk_progress_bar_pulse((GtkProgressBar*)progressBar);
+//			while(gtk_events_pending())
+//				gtk_main_iteration();
+
+			return(true);
+//		}
+//	else
+//		return(false);
+}
+
+cddb_disc_t*	maindisc;
+bool dopulse=true;
+
+gpointer justpulse(gpointer data)
+{
+
+gtk_main();
+while(dopulse==true)
+{
+while(gtk_events_pending())
+	gtk_main_iteration();
+}
+}
+
+gpointer ripTracks1(gpointer data);
+void ripTracks(GtkWidget* widg,gpointer data)
+{	
+	GtkWidget*	widget;
+	GtkWidget*	vbox;
+    guint		sid;
+   
+    /* create the modal window which warns the user to wait */
+    progressWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_modal(GTK_WINDOW(progressWindow),true);
+    gtk_window_set_title(GTK_WINDOW(progressWindow),"Ripping, Please Wait...");
+    gtk_container_set_border_width(GTK_CONTAINER(progressWindow), 12);
+    gtk_window_set_transient_for((GtkWindow*)progressWindow,window);
+    g_signal_connect(progressWindow,"delete_event",G_CALLBACK(gtk_true), NULL);
+    vbox=gtk_vbox_new(false,12);
+    gtk_widget_show(vbox);
+    /* create label */
+    widget=gtk_label_new("Ripping, Please wait...");
+    gtk_widget_show(widget);
+    gtk_container_add(GTK_CONTAINER(vbox),widget);
+    /* create progress bar */
+    widget=gtk_progress_bar_new();
+    gtk_widget_show(widget);
+    gtk_container_add(GTK_CONTAINER(vbox),widget);
+    /* add vbox to dialog */
+    gtk_container_add(GTK_CONTAINER(progressWindow),vbox);
+    gtk_widget_show(progressWindow);
+	sid=g_timeout_add(100, updateBarTimer,widget);
+    g_object_set_data(G_OBJECT(progressWindow), "source_id",GINT_TO_POINTER(sid));
+//	maindisc=(cddb_disc_t*)data;
+    g_thread_new("redo",(GThreadFunc)ripTracks1,data);
+   
+#if 0
+	guint sid;
+makeProgressBar();
+	sid=g_timeout_add(100, updateBarTimer,NULL);
+//   g_object_set_data(G_OBJECT(win), "source_id", GINT_TO_POINTER(sid));
+
+gdk_threads_enter(); 
+  g_thread_new("redo",(GThreadFunc)ripTracks1,(cddb_disc_t*)data);
+ gdk_threads_leave(); 
+//   	printf("AAAAAAAAAA\n");
+   
+ //  g_thread_create(ripTracks1, win, FALSE, NULL)
+//	maindisc=(cddb_disc_t*)data;
+makeProgressBar();
+	gtk_widget_show_all(progressWindow);
+while(gtk_events_pending())
+				gtk_main_iteration();
+	printf("AAAAAAAAAA\n");
+
+//	gdk_threads_enter();
+//	printf("RRRRRRRRRRRRr\n");
+//		g_timeout_add (100,updateBarTimer,NULL);
+	g_idle_add(updateBarTimer, data);	
+//printf("SSSSSSSSSSSSSS\n");
+
+//#if GLIB_MINOR_VERSION < PREFERVERSION
+		g_thread_create(justpulse,(cddb_disc_t*)data,false,NULL);
+//#else
+//	g_thread_new("redo",(GThreadFunc)justpulse,(cddb_disc_t*)data);
+//#endif
+
+//		gtk_main();
+//gdk_threads_leave();
+	ripTracks1(data);
+	dopulse=false;
+printf("ZZZZZZZZZZZZZZZZ\n");
+//	gdk_threads_leave();
+	gtk_widget_destroy(progressWindow);
+//	while(gtk_events_pending())
+//				gtk_main_iteration();
+//ripTracks1(NULL,NULL);
+#endif
+
+}
+
+
+//void ripTracks1(GtkWidget* widget,gpointer data)
+gpointer ripTracks1(gpointer data)
 {
 	int				tracknum=1;
 	char*			command;
 	FILE*			fp;
-	cddb_disc_t*	disc=(cddb_disc_t*)data;
+//	cddb_disc_t*	disc=(cddb_disc_t*)data;
+	cddb_disc_t*	disc=(cddb_disc_t*)maindisc;
 	char*			filename=NULL;
 	char*			cdstr=g_strdup(gtk_entry_get_text((GtkEntry*)cdEntry));
 	char*			cdnum=NULL;
 	char*			tagdata;
 	const char*			artistfolder;
 
+
+/*
+					makeProgressBar();
+					gdk_threads_enter();
+						g_timeout_add (100,updateBarTimer,NULL);
+
+#if GLIB_MINOR_VERSION < PREFERVERSION
+						g_thread_create(updateBarTimer,NULL,false,NULL);
+#else
+						g_thread_new("redo",(GThreadFunc)updateBarTimer,NULL);
+#endif
+
+						gtk_main();
+					gdk_threads_leave();
+					gtk_widget_destroy(progressWindow);
+
+makeProgressBar();
+g_timeout_add (100,updateBarTimer,NULL);
+
+	gtk_widget_show_all(progressWindow);
+while(gtk_events_pending())
+				gtk_main_iteration();
+*/
+printf("XXXXXXXXXXXXXXXXX\n");
 	if(isCompilation==true)
 		artistfolder=COMPILATIONARTIST;
 	else
@@ -310,8 +501,8 @@ void ripTracks(GtkWidget widget,gpointer data)
 					system(command);
 					g_free(command);
 					system("flac -f --fast audio.wav");
-					system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
-					system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
+					//system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
+					//system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
 
 //set tags
 					asprintf(&tagdata,"kute --artist=\"%s\" --album=\"%s\" --title=\"%s\" --track=%i --total-tracks=%i --year=\"%s\" --genre=\"%s\" --comment=\"Ripped and tagged by K.D.Hedger\" --cd=\"%s\""
@@ -349,10 +540,20 @@ void ripTracks(GtkWidget widget,gpointer data)
 					g_rename("audio.mp3",command);
 					g_free(command);
 					g_free(filename);
+
+					gtk_toggle_button_set_active((GtkToggleButton*)ripThis[i],false);
+					while(gtk_events_pending())
+						gtk_main_iteration();
 				}
 		}
 
 	getAlbumArt();
+//	gtk_widget_destroy(progressWindow);
+//	gtk_main_quit();
+//	return(NULL);
+ g_idle_add(lengthy_func_done,progressWindow);
+ g_thread_exit(NULL);
+ 
 }
 
 void doShutdown(GtkWidget* widget,gpointer data)
@@ -410,7 +611,6 @@ void showCDDetails(cddb_disc_t* disc)
 	int				tracknum=1;
 	char*			tmpstr;
 
-	GtkWindow*		window;
 	GtkWidget*		vbox;
 	GtkWidget*		windowvbox;
 	GtkWidget*		hbox;

@@ -17,6 +17,7 @@
 //#define COMPILATIONSTRING "Compilation"
 #define COMPILATIONSTRING "Various"
 #define COMPILATIONARTIST "Compilation"
+#define PREFERVERSION 34
 
 extern char*			album;
 extern char*			artist;
@@ -45,6 +46,8 @@ extern bool				isCompilation;
 
 extern bool				ripit;
 extern char*			tmpDir;
+
+extern GtkWindow*		window;
 
 char* sliceStrLen(char* srcstring,char* startstr,int len);
 char* sliceLen(char* srcstring,int tmpstartchar,int len);

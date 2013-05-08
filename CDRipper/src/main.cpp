@@ -126,6 +126,10 @@ int main(int argc, char **argv)
 		}
 	cddb_disc_destroy(disc);
 
+//#if GLIB_MINOR_VERSION < PREFERVERSION
+//	g_thread_init(NULL);
+//#endif
+	gdk_threads_init();
 	gtk_init(&argc,&argv);
 
 //add possible matches here
