@@ -150,29 +150,66 @@ return 0;
 	tempdisc=(cddb_disc_t *)discMatches->data;
 //	printDetails(tempdisc);
 	showCDDetails(tempdisc);
-	return(0);
+//	return(0);
 
 //	if(ripit==true)
 //		ripTracks(tempdisc);
 
+	int j;
+
+
+	asprintf(&album,"%s",gtk_entry_get_text((GtkEntry*)albumEntry));
+	asprintf(&artist,"%s",gtk_entry_get_text((GtkEntry*)artistEntry));
 	album=g_strdelimit(album," ",'+');
 	artist=g_strdelimit(artist," ",'+');
 
-	asprintf(&command,"curl -sk \"https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%s+%s&as_filetype=jpg&imgsz=large&rsz=1\"",artist,album);
 
+//	printf("AAA%sAAA\n",artist);
+//	printf("AAA%sAAA\n",album);
+	
+
+//curl -sk "http://musicbrainz.org/search?query=various+story+songs&type=release&method=indexed" > curlout
+//curl -sk "http://musicbrainz.org/release/5b3432b9-0f01-447b-8dbd-9a7f4f1bf61e/cover-art"
+//<img src="http://ecx.images-amazon.com/images/I/51LlZiD3uFL.jpg" />
+
+
+//	asprintf(&command,"curl -sk \"https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%s+%s&as_filetype=jpg&imgsz=large&rsz=1\"",artist,album);
+	asprintf(&command,"curl -sk \"http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed\"",artist,album);
+printf("%s\n",command);
+//return 0;
 	fp=popen(command, "r");
-	fgets((char*)&buffer[0],16384,fp);
+//	fgets((char*)&buffer[0],16384,fp);
+//fread
+	fread((char*)buffer,1,16384,fp);
+//	printf("%s\n",(char*)buffer);
+	char* urlmb;
+	char* release;
 
-	url=sliceBetween((char*)buffer,(char*)"unescapedUrl\":\"",(char*)"\",\"");
-	if(url!=NULL)
-		{
-			printf("%s\n",url);
-			if(download==true)
+	urlmb=strstr((char*)buffer,"href=\"http://musicbrainz.org/release");
+	printf("---%s--\n",urlmb);
+	return 0;
+	release=sliceBetween(urlmb,"href=\"","\">");
+
+	printf("---%s--\n",release);
+
+//	char*	srcptr=(char*)buffer;
+//	while (srcptr!=NULL)
+//		{
+
+/*
+			url=sliceBetween((char*)buffer,(char*)"unescapedUrl\":\"",(char*)"\",\"");
+			if(url!=NULL)
 				{
-					asprintf(&command,"curl -sko folder.jpg %s",url);
-					system(command);
+					printf("%s\n",url);
+					if(download==true)
+						{
+							asprintf(&command,"curl -sko folder%i.jpg %s",j,url);
+							system(command);
+						}
 				}
-		}
+*/
+//		}
+
 	pclose(fp);
 	if(command!=NULL)
 		g_free(command);

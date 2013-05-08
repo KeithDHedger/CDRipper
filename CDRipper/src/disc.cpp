@@ -200,6 +200,7 @@ void ripTracks(GtkWidget widget,gpointer data)
 	char*			filename=NULL;
 	char*			cdstr=g_strdup(gtk_entry_get_text((GtkEntry*)cdEntry));
 	char*			cdnum=NULL;
+	char*			tagdata;
 
 	asprintf(&command,"%s/%s/%s",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
@@ -227,7 +228,32 @@ void ripTracks(GtkWidget widget,gpointer data)
 					system("flac -f --fast audio.wav");
 					system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
 					system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
-					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.()");
+
+//set tags
+					asprintf(&tagdata,"kute --artist=\"%s\" --album=\"%s\" --title=\"%s\" --track=%i --total-tracks=%i --year=\"%s\" --genre=\"%s\" --comment=\"Ripped and tagged by K.D.Hedger\" --cd=\"%s\""
+					,gtk_entry_get_text((GtkEntry*)trackArtist[i])
+					,gtk_entry_get_text((GtkEntry*)albumEntry)
+					,gtk_entry_get_text((GtkEntry*)trackName[i])
+					,i
+					,numTracks
+					,gtk_entry_get_text((GtkEntry*)yearEntry)
+					,gtk_entry_get_text((GtkEntry*)genreEntry)
+					,cdstr
+					);
+
+					asprintf(&command,"%s audio.flac",tagdata);
+					system(command);
+					g_free(command);
+
+					asprintf(&command,"%s audio.m4a",tagdata);
+					system(command);
+					g_free(command);
+
+					asprintf(&command,"%s audio.mp3",tagdata);
+					system(command);
+					g_free(command);
+					g_free(tagdata);
+					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.");
 
 					asprintf(&command,"%s/%s/%s/%s%2.2i %s.flac",FLACDIR,gtk_entry_get_text((GtkEntry*)artistEntry),gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.flac",command);
