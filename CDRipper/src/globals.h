@@ -17,7 +17,7 @@
 #define VALIDFILENAMECHARS "[A-Za-z0-9_-./]"
 
 #define COMPILATIONSTRING "Various"
-#define COMPILATIONARTIST "Compilation"
+#define COMPILATIONARTIST "Compilations"
 #define PREFERVERSION 34
 
 extern char*			album;

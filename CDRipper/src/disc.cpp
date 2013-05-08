@@ -373,14 +373,13 @@ gpointer doTheRip(gpointer data)
 					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.");
 
 					asprintf(&command,"mv audio.flac \"%s/%s/%s/%s%2.2i %s.flac\"",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
-					//g_rename("audio.flac",command);
-					printf("---%s---\n",command);
+					system(command);
 					g_free(command);
-					asprintf(&command,"%s/%s/%s/%s%2.2i %s.m4a",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
-					g_rename("audio.m4a",command);
+					asprintf(&command,"mv audio.m4a \"%s/%s/%s/%s%2.2i %s.m4a\"",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+					system(command);
 					g_free(command);
-					asprintf(&command,"%s/%s/%s/%s%2.2i %s.mp3",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
-					g_rename("audio.mp3",command);
+					asprintf(&command,"mv audio.mp3 \"%s/%s/%s/%s%2.2i %s.mp3\"",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+					system(command);
 					g_free(command);
 					g_free(filename);
 
