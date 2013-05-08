@@ -102,6 +102,8 @@ int main(int argc, char **argv)
 			return(1);
 		}
 
+	init();
+
 	while (1)
 		{
 			int option_index=0;

@@ -212,9 +212,9 @@ void getAlbumArt()
 	else
 		artistfolder=artist;
 
-	asprintf(&flacimage,"%s/%s/%s/folder.jpg",FLACDIR,artistfolder,album);
-	asprintf(&mp4image,"%s/%s/%s/folder.jpg",MP4DIR,artistfolder,album);
-	asprintf(&mp3image,"%s/%s/%s/folder.jpg",MP3DIR,artistfolder,album);
+	asprintf(&flacimage,"%s/%s/%s/folder.jpg",flacFolder,artistfolder,album);
+	asprintf(&mp4image,"%s/%s/%s/folder.jpg",mp4Folder,artistfolder,album);
+	asprintf(&mp3image,"%s/%s/%s/folder.jpg",mp3Folder,artistfolder,album);
 
 	album=g_strdelimit(album," ",'+');
 	artist=g_strdelimit(artist," ",'+');
@@ -317,13 +317,13 @@ gpointer doTheRip(gpointer data)
 	else
 		artistfolder=gtk_entry_get_text((GtkEntry*)artistEntry);
 
-	asprintf(&command,"%s/%s/%s",FLACDIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+	asprintf(&command,"%s/%s/%s",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
 	g_free(command);
-	asprintf(&command,"%s/%s/%s",MP4DIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+	asprintf(&command,"%s/%s/%s",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
 	g_free(command);
-	asprintf(&command,"%s/%s/%s",MP3DIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+	asprintf(&command,"%s/%s/%s",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
 	g_free(command);
 
@@ -372,13 +372,14 @@ gpointer doTheRip(gpointer data)
 					g_free(tagdata);
 					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.");
 
-					asprintf(&command,"%s/%s/%s/%s%2.2i %s.flac",FLACDIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
-					g_rename("audio.flac",command);
+					asprintf(&command,"mv audio.flac \"%s/%s/%s/%s%2.2i %s.flac\"",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+					//g_rename("audio.flac",command);
+					printf("---%s---\n",command);
 					g_free(command);
-					asprintf(&command,"%s/%s/%s/%s%2.2i %s.m4a",MP4DIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+					asprintf(&command,"%s/%s/%s/%s%2.2i %s.m4a",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.m4a",command);
 					g_free(command);
-					asprintf(&command,"%s/%s/%s/%s%2.2i %s.mp3",MP3DIR,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+					asprintf(&command,"%s/%s/%s/%s%2.2i %s.mp3",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 					g_rename("audio.mp3",command);
 					g_free(command);
 					g_free(filename);
