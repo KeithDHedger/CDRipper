@@ -187,7 +187,7 @@ printf("%s\n",command);
 
 	urlmb=strstr((char*)buffer,"href=\"http://musicbrainz.org/release");
 	printf("---%s--\n",urlmb);
-	return 0;
+
 	release=sliceBetween(urlmb,"href=\"","\">");
 
 	printf("---%s--\n",release);

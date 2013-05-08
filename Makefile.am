@@ -1,5 +1,5 @@
 
-SUBDIRS = CDRipper/app CDRipper/debug
+SUBDIRS = CDRipper/app
 
 remake:
 	$(shell ./remakesourcelist)
