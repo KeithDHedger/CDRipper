@@ -14,7 +14,6 @@
 #define MP4DIR "/tmp/iPod/Music"
 #define MP3DIR "/tmp/MP3s/Music"
 
-//#define COMPILATIONSTRING "Compilation"
 #define COMPILATIONSTRING "Various"
 #define COMPILATIONARTIST "Compilation"
 #define PREFERVERSION 34
