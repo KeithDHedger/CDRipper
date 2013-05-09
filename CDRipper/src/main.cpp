@@ -24,9 +24,7 @@
 
 struct option long_options[] =
 	{
-		{"artist",1,0,'a'},
-		{"album",1,0,'b'},
-		{"no-download",0,0,'n'},
+		{"print",0,0,'p'},
 		{"rip",0,0,'r'},
 		{"version",0,0,'v'},
 		{"help",0,0,'?'},
@@ -113,16 +111,9 @@ int main(int argc, char **argv)
 
 			switch(c)
 				{
-					case 'a':
-						artist=optarg;
-						break;
 
-					case 'b':
-						album=optarg;
-						break;
-
-					case 'n':
-						download=false;
+					case 'p':
+						print=true;
 						break;
 
 					case 'r':
@@ -170,16 +161,18 @@ int main(int argc, char **argv)
 		}
 	cddb_disc_destroy(disc);
 
-//#if GLIB_MINOR_VERSION < PREFERVERSION
-//	g_thread_init(NULL);
-//#endif
+#if GLIB_MINOR_VERSION < PREFERVERSION
+	g_thread_init(NULL);
+#endif
 	gdk_threads_init();
 	gtk_init(&argc,&argv);
 
 //add possible matches here
 	tempdisc=(cddb_disc_t *)discMatches->data;
-//	printDetails(tempdisc);
-	showCDDetails(tempdisc);
+	if(print==true)
+		printDetails(tempdisc);
+	else
+		showCDDetails(tempdisc);
 
 	asprintf(&command,"rm -r %s",tmpDir);
 	system(command);

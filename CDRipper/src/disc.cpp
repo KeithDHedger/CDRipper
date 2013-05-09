@@ -421,7 +421,12 @@ void ripTracks(GtkWidget* widg,gpointer data)
 	gtk_widget_show(progressWindow);
 	sid=g_timeout_add(100, updateBarTimer,widget);
 	g_object_set_data(G_OBJECT(progressWindow), "source_id",GINT_TO_POINTER(sid));
+
+#if GLIB_MINOR_VERSION < PREFERVERSION
+	g_thread_create(doTheRip,(void*)data,false,NULL);
+#else
 	g_thread_new("redo",(GThreadFunc)doTheRip,data);
+#endif
 }
 
 void doShutdown(GtkWidget* widget,gpointer data)
@@ -620,6 +625,9 @@ void reScanCD(GtkWidget* widget,gpointer data)
 	cddb_disc_t*	thedisc;
 	cddb_disc_t*	tempdisc;
 
+	numTracks=0;
+	isCompilation=false;
+
 	thedisc=readDisc();
 	if(thedisc==NULL)
 		{
@@ -629,7 +637,6 @@ void reScanCD(GtkWidget* widget,gpointer data)
 
 	g_list_free_full(discMatches,freeData);
 	discMatches=NULL;
-	numTracks=0;
 
 	discMatches=lookupDisc(thedisc);
 	if (discMatches==NULL)
@@ -642,6 +649,11 @@ void reScanCD(GtkWidget* widget,gpointer data)
 	tempdisc=(cddb_disc_t *)discMatches->data;
 
 	doDetails(tempdisc);
+}
+
+void doRipOptions(GtkWidget* widget,gpointer data)
+{
+	printf("xxxx\n");
 }
 
 void showCDDetails(cddb_disc_t* disc)
@@ -665,6 +677,29 @@ void showCDDetails(cddb_disc_t* disc)
 
 	doDetails(disc);
 
+	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,16);
+
+	hbox=gtk_hbox_new(true,0);
+
+//rip options
+//rip flac
+	button=gtk_check_button_new_with_label("Rip Flac");
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPFLAC);	
+//rip mp4
+	button=gtk_check_button_new_with_label("Rip Mp4");
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPMP4);	
+//rip mp3
+	button=gtk_check_button_new_with_label("Rip Mp3");
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPMP3);	
+//lowqmp3
+	button=gtk_check_button_new_with_label("Low Quality Mp3");
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPLOWQMP3);	
+
+	gtk_box_pack_start(GTK_BOX(mainWindowVBox),hbox,false,true,0);
 	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,16);
 
 	hbox=gtk_hbox_new(true,0);

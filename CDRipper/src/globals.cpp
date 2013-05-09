@@ -31,6 +31,7 @@ GtkWidget*		mainWindowVBox;
 GtkWidget*		detailsVBox=NULL;
 GtkWidget*		windowScrollbox;
 
+bool			print=false;
 bool			download=true;
 const char*		cdrom="/dev/cdrom";
 cddb_disc_t*	disc=NULL;
@@ -50,6 +51,11 @@ GtkWindow*		window;
 char*			flacFolder=NULL;
 char*			mp4Folder=NULL;
 char*			mp3Folder=NULL;
+
+bool			ripFlac=false;
+bool			ripMp4=false;
+bool			ripMp3=false;
+bool			ripLowQMp3=false;
 
 //global routines
 //string sliceing

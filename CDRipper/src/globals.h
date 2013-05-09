@@ -20,6 +20,11 @@
 #define COMPILATIONARTIST "Compilations"
 #define PREFERVERSION 34
 
+#define RIPFLAC 1
+#define RIPMP4 2
+#define RIPMP3 3
+#define RIPLOWQMP3 4
+
 extern char*			album;
 extern char*			artist;
 extern char*			genre;
@@ -37,6 +42,7 @@ extern GtkWidget*		mainWindowVBox;
 extern GtkWidget*		detailsVBox;
 extern GtkWidget*		windowScrollbox;
 
+extern bool				print;
 extern bool				download;
 extern const char*		cdrom;
 extern cddb_disc_t*		disc;
@@ -57,6 +63,11 @@ extern GtkWindow*		window;
 extern char*			flacFolder;
 extern char*			mp4Folder;
 extern char*			mp3Folder;
+
+extern bool				ripFlac;
+extern bool				ripMp4;
+extern bool				ripMp3;
+extern bool				ripLowQMp3;
 
 char* sliceStrLen(char* srcstring,char* startstr,int len);
 char* sliceLen(char* srcstring,int tmpstartchar,int len);
