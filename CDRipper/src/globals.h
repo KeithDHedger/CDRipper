@@ -23,7 +23,8 @@
 #define RIPFLAC 1
 #define RIPMP4 2
 #define RIPMP3 3
-#define RIPLOWQMP3 4
+
+#define APPNAME "CD Ripper"
 
 extern char*			album;
 extern char*			artist;

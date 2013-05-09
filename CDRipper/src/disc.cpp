@@ -331,7 +331,7 @@ gpointer doTheRip(gpointer data)
 		asprintf(&cdnum,"%i-",atoi(cdstr));
 	else
 		asprintf(&cdnum,"%s","");
-//ffmpeg -y -i '01 Dancing Queen.flac' -acodec libmp3lame -ab 72k dq.mp3 0</dev/null
+
 	for (int i=1;i<=numTracks;i++)
 		{
 			g_chdir(tmpDir);
@@ -377,22 +377,18 @@ gpointer doTheRip(gpointer data)
 							system(command);
 							g_free(command);
 						}
-					if((ripMp3==true) && (ripLowQMp3==false))
-						system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
-					if((ripMp3==true) && (ripLowQMp3==true))
-						system("ffmpeg -i audio.wav -ab 72k audio.mp3");
-
-					if(ripMp3==true)
+					if((ripMp3==true))
 						{
+							system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
 							asprintf(&command,"%s audio.mp3",tagdata);
 							system(command);
 							g_free(command);
-							g_free(tagdata);
 							asprintf(&command,"mv audio.mp3 \"%s/%s/%s/%s%2.2i %s.mp3\"",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 							system(command);
 							g_free(command);
 						}
 
+					g_free(tagdata);
 					g_free(filename);
 
 					gtk_toggle_button_set_active((GtkToggleButton*)ripThis[i],false);
@@ -576,7 +572,7 @@ void doDetails(cddb_disc_t* disc)
 	gtk_entry_set_text((GtkEntry*)cdEntry,"1");
 	g_signal_connect(G_OBJECT(compilation),"toggled",G_CALLBACK(doCompiliation),NULL);
 
-	gtk_box_pack_start(GTK_BOX(detailsVBox),gtk_hseparator_new(),false,true,16);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),gtk_hseparator_new(),false,true,4);
 
 //rip all
 	hbox=gtk_hbox_new(false,0);
@@ -587,7 +583,7 @@ void doDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),ripThis[0],false,false,0);
 	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 
-	gtk_box_pack_start(GTK_BOX(detailsVBox),gtk_hseparator_new(),false,true,16);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),gtk_hseparator_new(),false,true,4);
 
 	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
 		{
@@ -679,9 +675,6 @@ void doRipOptions(GtkWidget* widget,gpointer data)
 			case RIPMP3:
 				ripMp3=value;
 				break;
-			case RIPLOWQMP3:
-				ripLowQMp3=value;
-				break;
 		}
 }
 
@@ -691,7 +684,8 @@ void showCDDetails(cddb_disc_t* disc)
 	GtkWidget*		hbox;
 
 	window=(GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size((GtkWindow*)window,800,600);
+	gtk_window_set_title(window,APPNAME);
+	gtk_window_set_default_size((GtkWindow*)window,600,480);
 	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doNothing),NULL);
 
 	mainWindowVBox=gtk_vbox_new(false,0);
@@ -706,30 +700,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 	doDetails(disc);
 
-	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,16);
-
-	hbox=gtk_hbox_new(true,0);
-
-//rip options
-//rip flac
-	button=gtk_check_button_new_with_label("Rip Flac");
-	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
-	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPFLAC);	
-//rip mp4
-	button=gtk_check_button_new_with_label("Rip Mp4");
-	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
-	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPMP4);	
-//rip mp3
-	button=gtk_check_button_new_with_label("Rip Mp3");
-	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
-	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPMP3);	
-//lowqmp3
-	button=gtk_check_button_new_with_label("Low Quality Mp3");
-	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
-	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPLOWQMP3);	
-
-	gtk_box_pack_start(GTK_BOX(mainWindowVBox),hbox,false,true,0);
-	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,16);
+	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,4);
 
 	hbox=gtk_hbox_new(true,0);
 
@@ -737,6 +708,21 @@ void showCDDetails(cddb_disc_t* disc)
 	button=gtk_button_new_with_label("Rip CD");
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
 	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(ripTracks),(void*)disc);
+
+//rip options
+//rip flac
+	button=gtk_check_button_new_with_label("Rip Flac");
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	gtk_toggle_button_set_active((GtkToggleButton*)button,true);
+	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPFLAC);
+//rip mp4
+	button=gtk_check_button_new_with_label("Rip Mp4");
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPMP4);
+//rip mp3
+	button=gtk_check_button_new_with_label("Rip Mp3");
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(doRipOptions),(void*)RIPMP3);
 
 //rescan
 	button=gtk_button_new_with_label("Re-Scan CD");
@@ -749,7 +735,7 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
 	gtk_box_pack_start(GTK_BOX(mainWindowVBox),hbox,false,true,0);
 
-	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,16);
+	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,4);
 
 	gtk_widget_show_all((GtkWidget*)window);
 	gtk_main();
