@@ -331,7 +331,7 @@ gpointer doTheRip(gpointer data)
 		asprintf(&cdnum,"%i-",atoi(cdstr));
 	else
 		asprintf(&cdnum,"%s","");
-
+//ffmpeg -y -i '01 Dancing Queen.flac' -acodec libmp3lame -ab 72k dq.mp3 0</dev/null
 	for (int i=1;i<=numTracks;i++)
 		{
 			g_chdir(tmpDir);
@@ -342,9 +342,6 @@ gpointer doTheRip(gpointer data)
 					asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",tracknum,tracknum);
 					system(command);
 					g_free(command);
-					system("flac -f --fast audio.wav");
-					system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
-					system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
 
 //set tags
 					asprintf(&tagdata,"kute --artist=\"%s\" --album=\"%s\" --title=\"%s\" --track=%i --total-tracks=%i --year=\"%s\" --genre=\"%s\" --comment=\"Ripped and tagged by K.D.Hedger\" --cd=\"%s\""
@@ -358,29 +355,44 @@ gpointer doTheRip(gpointer data)
 					,cdstr
 					);
 
-					asprintf(&command,"%s audio.flac",tagdata);
-					system(command);
-					g_free(command);
-
-					asprintf(&command,"%s audio.m4a",tagdata);
-					system(command);
-					g_free(command);
-
-					asprintf(&command,"%s audio.mp3",tagdata);
-					system(command);
-					g_free(command);
-					g_free(tagdata);
 					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.");
 
-					asprintf(&command,"mv audio.flac \"%s/%s/%s/%s%2.2i %s.flac\"",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
-					system(command);
-					g_free(command);
-					asprintf(&command,"mv audio.m4a \"%s/%s/%s/%s%2.2i %s.m4a\"",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
-					system(command);
-					g_free(command);
-					asprintf(&command,"mv audio.mp3 \"%s/%s/%s/%s%2.2i %s.mp3\"",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
-					system(command);
-					g_free(command);
+					if(ripFlac==true)
+						{
+							system("flac -f --fast audio.wav");
+							asprintf(&command,"%s audio.flac",tagdata);
+							system(command);
+							g_free(command);
+							asprintf(&command,"mv audio.flac \"%s/%s/%s/%s%2.2i %s.flac\"",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+							system(command);
+							g_free(command);
+						}
+					if(ripMp4==true)
+						{
+							system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
+							asprintf(&command,"%s audio.m4a",tagdata);
+							system(command);
+							g_free(command);
+							asprintf(&command,"mv audio.m4a \"%s/%s/%s/%s%2.2i %s.m4a\"",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+							system(command);
+							g_free(command);
+						}
+					if((ripMp3==true) && (ripLowQMp3==false))
+						system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
+					if((ripMp3==true) && (ripLowQMp3==true))
+						system("ffmpeg -i audio.wav -ab 72k audio.mp3");
+
+					if(ripMp3==true)
+						{
+							asprintf(&command,"%s audio.mp3",tagdata);
+							system(command);
+							g_free(command);
+							g_free(tagdata);
+							asprintf(&command,"mv audio.mp3 \"%s/%s/%s/%s%2.2i %s.mp3\"",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+							system(command);
+							g_free(command);
+						}
+
 					g_free(filename);
 
 					gtk_toggle_button_set_active((GtkToggleButton*)ripThis[i],false);
@@ -653,7 +665,24 @@ void reScanCD(GtkWidget* widget,gpointer data)
 
 void doRipOptions(GtkWidget* widget,gpointer data)
 {
-	printf("xxxx\n");
+	int		what=(int)(long)data;
+	bool	value=gtk_toggle_button_get_active((GtkToggleButton*)widget);
+
+	switch (what)
+		{
+			case RIPFLAC:
+				ripFlac=value;
+				break;
+			case RIPMP4:
+				ripMp4=value;
+				break;
+			case RIPMP3:
+				ripMp3=value;
+				break;
+			case RIPLOWQMP3:
+				ripLowQMp3=value;
+				break;
+		}
 }
 
 void showCDDetails(cddb_disc_t* disc)
