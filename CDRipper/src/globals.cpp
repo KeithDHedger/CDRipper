@@ -22,10 +22,14 @@ GtkWidget*		trackName[100];
 GtkWidget*		trackArtist[100];
 GtkWidget*		ripThis[100];
 GtkWidget*		albumEntry;
-GtkWidget*		artistEntry;
+GtkWidget*		artistEntry=NULL;
 GtkWidget*		genreEntry;
 GtkWidget*		yearEntry;
 GtkWidget*		cdEntry;
+
+GtkWidget*		mainWindowVBox;
+GtkWidget*		detailsVBox=NULL;
+GtkWidget*		windowScrollbox;
 
 bool			download=true;
 const char*		cdrom="/dev/cdrom";

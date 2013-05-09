@@ -469,7 +469,7 @@ void doSelectAll(GtkWidget* widget,gpointer data)
 		gtk_toggle_button_set_active((GtkToggleButton*)ripThis[i],sens);
 }
 
-void showCDDetails(cddb_disc_t* disc)
+void doDetails(cddb_disc_t* disc)
 {
 	char*			disc_artist=(char*)cddb_disc_get_artist(disc);
 	char*			disc_title=(char*)cddb_disc_get_title(disc);
@@ -479,25 +479,21 @@ void showCDDetails(cddb_disc_t* disc)
 	int				tracknum=1;
 	char*			tmpstr;
 
-	GtkWidget*		vbox;
-	GtkWidget*		windowvbox;
 	GtkWidget*		hbox;
-	GtkWidget*		scrollbox;
-	GtkWidget*		button;
-	GtkWidget*		compilation;
-	
-	window=(GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size((GtkWindow*)window,800,600);
-	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doNothing),NULL);
 
-	vbox=gtk_vbox_new(false,0);
+	GtkWidget*		compilation;
+
+	if(detailsVBox!=NULL)
+		gtk_widget_destroy(detailsVBox);
+
+	detailsVBox=gtk_vbox_new(false,0);
 	hbox=gtk_hbox_new(false,0);
 
 //disc artist
 	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Artist:		"),false,false,0);
 	artistEntry=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),artistEntry,true,true,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 
 	if(disc_artist!=NULL)
 		{
@@ -510,7 +506,7 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Album:		"),false,false,0);
 	albumEntry=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),albumEntry,true,true,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 
 	if(disc_title!=NULL)
 		{
@@ -523,7 +519,7 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Genre:		"),false,false,0);
 	genreEntry=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),genreEntry,true,true,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 
 	if(disc_genre!=NULL)
 		{
@@ -536,7 +532,7 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Year:		"),false,false,0);
 	yearEntry=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),yearEntry,true,true,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 
 	if(disc_year!=0)
 		{
@@ -551,7 +547,7 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("CD Number:	"),false,false,0);
 	cdEntry=gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(hbox),cdEntry,true,true,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 	gtk_entry_set_text((GtkEntry*)cdEntry,"1");
 
 //comp
@@ -559,11 +555,11 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Compilation:	"),false,false,0);
 	compilation=gtk_check_button_new_with_label("");
 	gtk_box_pack_start(GTK_BOX(hbox),compilation,true,true,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 	gtk_entry_set_text((GtkEntry*)cdEntry,"1");
 	g_signal_connect(G_OBJECT(compilation),"toggled",G_CALLBACK(doCompiliation),NULL);
 
-	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),false,true,16);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),gtk_hseparator_new(),false,true,16);
 
 //rip all
 	hbox=gtk_hbox_new(false,0);
@@ -572,9 +568,9 @@ void showCDDetails(cddb_disc_t* disc)
 	ripThis[0]=gtk_check_button_new_with_label("");
 	g_signal_connect(G_OBJECT(ripThis[0]),"toggled",G_CALLBACK(doSelectAll),NULL);
 	gtk_box_pack_start(GTK_BOX(hbox),ripThis[0],false,false,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 
-	gtk_box_pack_start(GTK_BOX(vbox),gtk_hseparator_new(),false,true,16);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),gtk_hseparator_new(),false,true,16);
 
 	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
 		{
@@ -586,7 +582,7 @@ void showCDDetails(cddb_disc_t* disc)
 
 			if(strcasecmp(cddb_track_get_artist(track),artist)!=0)
 				{
-					gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+					gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 				}
 
 		//	printf("Track Artist - %s\n",cddb_track_get_artist(track));
@@ -605,33 +601,91 @@ void showCDDetails(cddb_disc_t* disc)
 			gtk_box_pack_start(GTK_BOX(hbox),ripThis[tracknum],false,false,0);
 			g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)(long)tracknum);
 
-			gtk_box_pack_start(GTK_BOX(vbox),hbox,false,true,0);
+			gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 		//	printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
   			tracknum++;
 		}
 
-	scrollbox=gtk_scrolled_window_new(NULL,NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollbox),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+	gtk_widget_show_all(detailsVBox);
+	gtk_scrolled_window_add_with_viewport((GtkScrolledWindow*)windowScrollbox,detailsVBox);
+}
 
-	windowvbox=gtk_vbox_new(false,0);
-	gtk_container_add(GTK_CONTAINER(window),windowvbox);
-	
-	gtk_container_add(GTK_CONTAINER(windowvbox),scrollbox);
-	gtk_scrolled_window_add_with_viewport((GtkScrolledWindow*)scrollbox,vbox);
+void freeData(gpointer data)
+{
+	cddb_disc_destroy((cddb_disc_t*)data);
+}
 
-	gtk_box_pack_start(GTK_BOX(windowvbox),gtk_hseparator_new(),false,true,16);
+void reScanCD(GtkWidget* widget,gpointer data)
+{
+	cddb_disc_t*	thedisc;
+	cddb_disc_t*	tempdisc;
+
+	thedisc=readDisc();
+	if(thedisc==NULL)
+		{
+			printf("no disc\n");
+			return;
+		}
+
+	g_list_free_full(discMatches,freeData);
+	discMatches=NULL;
+	numTracks=0;
+
+	discMatches=lookupDisc(thedisc);
+	if (discMatches==NULL)
+		{
+			printf("No matches found for disc :(\n");
+			return;
+		}
+	cddb_disc_destroy(thedisc);
+
+	tempdisc=(cddb_disc_t *)discMatches->data;
+
+	doDetails(tempdisc);
+}
+
+void showCDDetails(cddb_disc_t* disc)
+{
+	GtkWidget*		button;
+	GtkWidget*		hbox;
+
+	window=(GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size((GtkWindow*)window,800,600);
+	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doNothing),NULL);
+
+	mainWindowVBox=gtk_vbox_new(false,0);
+
+	gtk_container_add(GTK_CONTAINER(window),mainWindowVBox);
+
+	gtk_widget_show_all((GtkWidget*)window);
+
+	windowScrollbox=gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(windowScrollbox),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+	gtk_container_add(GTK_CONTAINER(mainWindowVBox),windowScrollbox);
+
+	doDetails(disc);
+
+	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,16);
 
 	hbox=gtk_hbox_new(true,0);
 
+//rip
 	button=gtk_button_new_with_label("Rip CD");
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
 	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(ripTracks),(void*)disc);
+
+//rescan
+	button=gtk_button_new_with_label("Re-Scan CD");
+	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
+	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(reScanCD),(void*)disc);
+
+//quit
 	button=gtk_button_new_from_stock(GTK_STOCK_QUIT);
 	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(doShutdown),NULL);
 	gtk_box_pack_start(GTK_BOX(hbox),button,false,false,0);
-	gtk_box_pack_start(GTK_BOX(windowvbox),hbox,false,true,0);
+	gtk_box_pack_start(GTK_BOX(mainWindowVBox),hbox,false,true,0);
 
-	gtk_box_pack_start(GTK_BOX(windowvbox),gtk_hseparator_new(),false,true,16);
+	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,16);
 
 	gtk_widget_show_all((GtkWidget*)window);
 	gtk_main();

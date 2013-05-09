@@ -33,6 +33,10 @@ extern GtkWidget*		genreEntry;
 extern GtkWidget*		yearEntry;
 extern GtkWidget*		cdEntry;
 
+extern GtkWidget*		mainWindowVBox;
+extern GtkWidget*		detailsVBox;
+extern GtkWidget*		windowScrollbox;
+
 extern bool				download;
 extern const char*		cdrom;
 extern cddb_disc_t*		disc;
