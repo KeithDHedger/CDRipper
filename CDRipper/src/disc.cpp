@@ -360,13 +360,11 @@ gpointer doTheRip(gpointer data)
 
 					if(ripFlac==true)
 						{
-						printf("ZZZZZZZZZZZZZZ\n");
 							system("flac -f --fast audio.wav");
 							asprintf(&command,"%s audio.flac",tagdata);
 							system(command);
 							g_free(command);
 							asprintf(&command,"mv audio.flac \"%s/%s/%s/%s%2.2i %s.flac\"",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
-							printf("AAA%sBBB\n",command);
 							system(command);
 							g_free(command);
 						}

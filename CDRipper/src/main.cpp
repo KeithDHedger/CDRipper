@@ -35,7 +35,8 @@ void printhelp(void)
 {
 printf("Usage: getcoverart [OPTION]\n"
 	"A CLI application\n"
-	" -l, --long1	Do somthing good\n"
+	" -p, --print	Print Details\n"
+	" -r, --rip	Rip disc\n"
 	" -v, --version	output version information and exit\n"
 	" -h, -?, --help	print this help\n\n"
 	"Report bugs to kdhedger@yahoo.co.uk\n"
@@ -105,7 +106,7 @@ int main(int argc, char **argv)
 	while (1)
 		{
 			int option_index=0;
-			c=getopt_long(argc,argv,"v?hnr:a:b:",long_options,&option_index);
+			c=getopt_long(argc,argv,"v?hrpr",long_options,&option_index);
 			if (c==-1)
 				break;
 
