@@ -52,7 +52,7 @@ char*			flacFolder=NULL;
 char*			mp4Folder=NULL;
 char*			mp3Folder=NULL;
 
-bool			ripFlac=false;
+bool			ripFlac=true;
 bool			ripMp4=false;
 bool			ripMp3=false;
 bool			ripLowQMp3=false;

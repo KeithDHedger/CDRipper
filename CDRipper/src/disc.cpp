@@ -96,7 +96,7 @@ GList* lookupDisc(cddb_disc_t* disc)
 {
 	GList*			matches=NULL;
 	cddb_conn_t*	connection;
-	int				numMatches;
+	int				numMatches=-1;
 
 	// set up the connection to the cddb server
 	connection=cddb_new();
@@ -108,6 +108,7 @@ GList* lookupDisc(cddb_disc_t* disc)
 	cddb_set_server_port(connection,8880);
 
 	numMatches=cddb_query(connection, disc);
+//printf("ZZZZZ%i\n",numMatches);
 
 	// make a list of all the matches
 	for (int i=0;i<numMatches;i++)
@@ -359,11 +360,13 @@ gpointer doTheRip(gpointer data)
 
 					if(ripFlac==true)
 						{
+						printf("ZZZZZZZZZZZZZZ\n");
 							system("flac -f --fast audio.wav");
 							asprintf(&command,"%s audio.flac",tagdata);
 							system(command);
 							g_free(command);
 							asprintf(&command,"mv audio.flac \"%s/%s/%s/%s%2.2i %s.flac\"",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+							printf("AAA%sBBB\n",command);
 							system(command);
 							g_free(command);
 						}
