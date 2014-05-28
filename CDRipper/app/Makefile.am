@@ -7,17 +7,12 @@ cdripper_SOURCES = $(COMMONSRC)
 
 cdripper_CFLAGS = -O3
 
-pixfilesdir = $(pkgdatadir)/pixmaps
-pixfiles_DATA = ../resources/pixmaps/*.png
-
-man1_MANS = ../resources/man/cdripper.1
-
 bin_PROGRAMS = cdripper
 
 install-exec-hook:
 	install -D ../resources/pixmaps/CDRipper.png $(DESTDIR)${prefix}/share/pixmaps/CDRipper.png
 	install -D ../resources/pixmaps/CDRipper.desktop $(DESTDIR)${prefix}/share/applications/CDRipper.desktop
-	cp ../resources/pixmaps/CDRipper.png $(DESTDIR)${prefix}/share/icons/hicolor/256x256/apps
+	install -D ../resources/pixmaps/CDRipper.png $(DESTDIR)${prefix}/share/icons/hicolor/256x256/apps/CDRipper.png
 	gtk-update-icon-cache --ignore-theme-index --force $(DESTDIR)${prefix}/share/icons/hicolor
 
 uninstall-hook:
