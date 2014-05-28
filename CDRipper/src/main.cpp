@@ -19,7 +19,7 @@
 #include "globals.h"
 #include "disc.h"
 
-#define VERSION "0.0.1"
+#define VERSION "0.0.4"
 #define UNKNOWNARG -100
 
 struct option long_options[] =

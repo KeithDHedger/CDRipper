@@ -10,9 +10,6 @@ cdripper_CFLAGS = -O3
 pixfilesdir = $(pkgdatadir)/pixmaps
 pixfiles_DATA = ../resources/pixmaps/*.png
 
-scriptfilesdir = $(pkgdatadir)/scripts
-scriptfiles_SCRIPTS = ../resources/scripts/*
-
 man1_MANS = ../resources/man/cdripper.1
 
 bin_PROGRAMS = cdripper

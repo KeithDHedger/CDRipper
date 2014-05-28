@@ -23,6 +23,7 @@
 #include <gtk/gtk.h>
 
 #include "globals.h"
+#include "config.h"
 
 GtkWidget*	progressWindow;
 char		ripName[1024];
@@ -736,6 +737,9 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(mainWindowVBox),hbox,false,true,0);
 
 	gtk_box_pack_start(GTK_BOX(mainWindowVBox),gtk_hseparator_new(),false,true,4);
+
+	gtk_window_set_default_icon_name(PACKAGE);
+	gtk_window_set_icon_name((GtkWindow*)window,PACKAGE);
 
 	gtk_widget_show_all((GtkWidget*)window);
 	gtk_main();
