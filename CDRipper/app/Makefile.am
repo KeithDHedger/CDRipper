@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = subdir-objects
 
 include ../flagsandlibs
 include ../sources
@@ -7,7 +8,7 @@ cdripper_SOURCES = $(COMMONSRC)
 cdripper_CFLAGS = -O3
 
 pixfilesdir = $(pkgdatadir)/pixmaps
-pixfiles_DATA = ../resources/pixmaps/*
+pixfiles_DATA = ../resources/pixmaps/*.png
 
 scriptfilesdir = $(pkgdatadir)/scripts
 scriptfiles_SCRIPTS = ../resources/scripts/*
@@ -17,12 +18,11 @@ man1_MANS = ../resources/man/cdripper.1
 bin_PROGRAMS = cdripper
 
 install-exec-hook:
-	cp ../resources/pixmaps/CDRipper.desktop /usr/share/applications/CDRipper.desktop
-	cp ../resources/pixmaps/CDRipper.png /usr/share/pixmaps
-	echo Icon=${prefix}/share/CDRipper/pixmaps/CDRipper.png >> /usr/share/applications/CDRipper.desktop
-	echo Exec=${prefix}/bin/cdripper >> /usr/share/applications/CDRipper.desktop
+	install -D ../resources/pixmaps/CDRipper.png $(DESTDIR)${prefix}/share/pixmaps/CDRipper.png
+	install -D ../resources/pixmaps/CDRipper.desktop $(DESTDIR)${prefix}/share/applications/CDRipper.desktop
+	cp ../resources/pixmaps/CDRipper.png $(DESTDIR)${prefix}/share/icons/hicolor/256x256/apps
+	gtk-update-icon-cache --ignore-theme-index --force $(DESTDIR)${prefix}/share/icons/hicolor
 
 uninstall-hook:
-	rm -f /usr/share/applications/CDRipper.desktop /usr/share/pixmaps/CDRipper.png
-
+	rm -f $(DESTDIR)${prefix}/share/applications/CDRipper.desktop $(DESTDIR)${prefix}/share/pixmaps/CDRipper.png  $(DESTDIR)${prefix}/share/icons/hicolor/256x256/apps/CDRipper.png
 	rm -fr $(pkgdatadir)

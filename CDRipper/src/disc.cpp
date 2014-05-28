@@ -103,8 +103,8 @@ GList* lookupDisc(cddb_disc_t* disc)
 	if (connection==NULL)
 		printf("cddb_new() failed. Out of memory?");
     
-//	cddb_set_server_name(connection,"freedb.freedb.org");
-	cddb_set_server_name(connection,"freedb.musicbrainz.org");
+	cddb_set_server_name(connection,"freedb.freedb.org");
+//	cddb_set_server_name(connection,"freedb.musicbrainz.org");
 	cddb_set_server_port(connection,8880);
 
 	numMatches=cddb_query(connection, disc);
@@ -303,7 +303,6 @@ gboolean updateBarTimer(gpointer data)
 
 gpointer doTheRip(gpointer data)
 {
-	int				tracknum=1;
 	char*			command;
 	FILE*			fp;
 	cddb_disc_t*	disc=(cddb_disc_t*)data;
@@ -340,7 +339,7 @@ gpointer doTheRip(gpointer data)
 				{
 					sprintf((char*)&ripName,"Ripping Track \"%s\" ...",gtk_entry_get_text((GtkEntry*)trackName[i]));
 					labelChanged=true;
-					asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",tracknum,tracknum);
+					asprintf(&command,"cdda2wav dev=/dev/cdrom -t %i+%i -alltracks -max",i,i);
 					system(command);
 					g_free(command);
 
@@ -370,7 +369,7 @@ gpointer doTheRip(gpointer data)
 						}
 					if(ripMp4==true)
 						{
-							system("ffmpeg -i audio.wav -q:a 0 audio.m4a");
+							system("ffmpeg -i audio.wav -qscale 0 audio.m4a");
 							asprintf(&command,"%s audio.m4a",tagdata);
 							system(command);
 							g_free(command);

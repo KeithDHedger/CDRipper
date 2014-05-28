@@ -1,9 +1,9 @@
 [Desktop Entry]
-Version=1.0
-Encoding=UTF-8
 Name=CDRipper
 Comment=
 Terminal=false
 Type=Application
 Categories=AudioVideo;Audio;
-Name[en_US]=CDRipper
+Name=CDRipper
+Exec=cdripper
+Icon=CDRipper
