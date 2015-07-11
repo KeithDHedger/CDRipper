@@ -205,6 +205,7 @@ void getAlbumArt()
 	char*			mp4image;
 	char*			mp3image;
 	const char*		artistfolder;
+	char			*newart;
 
 	asprintf(&album,"%s",gtk_entry_get_text((GtkEntry*)albumEntry));
 	asprintf(&artist,"%s",gtk_entry_get_text((GtkEntry*)artistEntry));
@@ -220,8 +221,8 @@ void getAlbumArt()
 
 	album=g_strdelimit(album," ",'+');
 	artist=g_strdelimit(artist," ",'+');
+	asprintf(&command,"curl -sk -G $(echo 'http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed'|sed 's/ /%20/g')",artist,album);
 
-	asprintf(&command,"curl -sk \"http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed\"",artist,album);
 	fp=popen(command, "r");
 	g_free(command);
 	if(fp!=NULL)
@@ -247,6 +248,14 @@ void getAlbumArt()
 					pclose(fp);
 
 					artwork=sliceBetween(buffer->str,(char*)"<img src=\"",(char*)"\"");
+					if(artwork[0]=='/')
+						{
+							asprintf(&newart,"http:%s",artwork);
+							free(artwork);
+							artwork=strdup(newart);
+							free(newart);
+						}
+
 					if(artwork!=NULL)
 						{
 							asprintf(&command,"wget \"%s\" -O \"%s\"",artwork,flacimage);
@@ -327,7 +336,7 @@ gpointer doTheRip(gpointer data)
 	asprintf(&command,"%s/%s/%s",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 	g_mkdir_with_parents(command,493);
 	g_free(command);
-
+#if 1
 	if(strchr(cdstr,'/')!=NULL)
 		asprintf(&cdnum,"%i-",atoi(cdstr));
 	else
@@ -395,7 +404,7 @@ gpointer doTheRip(gpointer data)
 					gtk_toggle_button_set_active((GtkToggleButton*)ripThis[i],false);
 				}
 		}
-
+#endif
 	getAlbumArt();
 	g_idle_add(doneRipping,progressWindow);
 	g_thread_exit(NULL);
