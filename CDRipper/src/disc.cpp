@@ -200,13 +200,12 @@ void getAlbumArt()
 	char			line[1024];
 	char*			urlmb=NULL;
 	char*			release=NULL;
-	char*			artwork;
-	char*			flacimage;
-	char*			mp4image;
-	char*			mp3image;
-	const char*		artistfolder;
-	char			*newart;
-
+	char*			artwork=NULL;
+	char*			flacimage=NULL;
+	char*			mp4image=NULL;
+	char*			mp3image=NULL;
+	const char*		artistfolder=NULL;
+	char			*newart=NULL;
 	asprintf(&album,"%s",gtk_entry_get_text((GtkEntry*)albumEntry));
 	asprintf(&artist,"%s",gtk_entry_get_text((GtkEntry*)artistEntry));
 
@@ -215,74 +214,106 @@ void getAlbumArt()
 	else
 		artistfolder=artist;
 
-	asprintf(&flacimage,"%s/%s/%s/folder.jpg",flacFolder,artistfolder,album);
-	asprintf(&mp4image,"%s/%s/%s/folder.jpg",mp4Folder,artistfolder,album);
-	asprintf(&mp3image,"%s/%s/%s/folder.jpg",mp3Folder,artistfolder,album);
-
-	album=g_strdelimit(album," ",'+');
-	artist=g_strdelimit(artist," ",'+');
-	asprintf(&command,"curl -sk -G $(echo 'http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed'|sed 's/ /%20/g')",artist,album);
-
-	fp=popen(command, "r");
+//glyrc cover --artist "Tom Waits" --album "orphans" -F jpeg --write '/tmp/Tom Waits/folder.jpg' &>/dev/null
+//	asprintf(&command,"cd /tmp;glyrc cover --artist \"%s\" --album \"%s\" -F jpeg --write '%s/%s/%s/folder.jpg' &>/dev/null",artist,album,flacFolder,artist,album);
+	asprintf(&command,"glyrc cover --artist \"%s\" --album \"%s\" -F jpeg --write '/tmp/folder.jpg' &>/dev/null",artist,album);
+	system(command);
 	g_free(command);
-	if(fp!=NULL)
+
+	if(ripFlac==true)
 		{
-			while(fgets(line,1024,fp))
-				g_string_append_printf(buffer,"%s",line);
-			pclose(fp);
+			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",flacFolder,artist,album);
+			system(command);
+			g_free(command);		
+		}
+	if(ripMp4==true)
+		{
+			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",mp4Folder,artist,album);
+			system(command);
+			g_free(command);		
+		}
+	if(ripMp3==true)
+		{
+			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",mp3Folder,artist,album);
+			system(command);
+			g_free(command);		
 		}
 
-	urlmb=strstr(buffer->str,"href=\"http://musicbrainz.org/release");
-	if(urlmb!=NULL)
-		{
-			release=sliceBetween(urlmb,(char*)"href=\"",(char*)"\">");
-			if(release!=NULL)
-				{
-					asprintf(&command,"curl -sk \"%s/cover-art\"",release);
-					fp=popen(command, "r");
-					g_free(command);
-
-					g_string_erase(buffer,0,-1);
-					while(fgets(line,1024,fp))
-						g_string_append_printf(buffer,"%s",line);
-					pclose(fp);
-
-					artwork=sliceBetween(buffer->str,(char*)"<img src=\"",(char*)"\"");
-					if(artwork[0]=='/')
-						{
-							asprintf(&newart,"http:%s",artwork);
-							free(artwork);
-							artwork=strdup(newart);
-							free(newart);
-						}
-
-					if(artwork!=NULL)
-						{
-							asprintf(&command,"wget \"%s\" -O \"%s\"",artwork,flacimage);
-							system(command);
-							g_free(command);
-							asprintf(&command,"cp \"%s\" \"%s\"",flacimage,mp4image);
-							system(command);
-							g_free(command);
-							asprintf(&command,"cp \"%s\" \"%s\"",flacimage,mp3image);
-							system(command);
-							g_free(command);
-						}
-				}
-			}
-
-	if(release!=NULL)
-		g_free(release);
-	if(artwork!=NULL)
-		g_free(artwork);
-	if(flacimage!=NULL)
-		g_free(flacimage);
-	if(mp4image!=NULL)
-		g_free(mp4image);
-	if(mp3image!=NULL)
-		g_free(mp3image);
-
-	g_string_free(buffer,true);
+//	asprintf(&flacimage,"%s/%s/%s/folder.jpg",flacFolder,artistfolder,album);
+//	asprintf(&mp4image,"%s/%s/%s/folder.jpg",mp4Folder,artistfolder,album);
+//	asprintf(&mp3image,"%s/%s/%s/folder.jpg",mp3Folder,artistfolder,album);
+//
+//	album=g_strdelimit(album," ",'+');
+//	artist=g_strdelimit(artist," ",'+');
+//	asprintf(&command,"curl -sk -G $(echo 'http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed'|sed 's/ /%20/g')",artist,album);
+//					printf(">>>%s<<<\n",command);
+//
+//	fp=popen(command, "r");
+//	g_free(command);
+//	if(fp!=NULL)
+//		{
+//			while(fgets(line,1024,fp))
+//				g_string_append_printf(buffer,"%s",line);
+//			pclose(fp);
+//		}
+//
+//	urlmb=strstr(buffer->str,"href=\"http://musicbrainz.org/release");
+//					printf(">>>urlmb=%s<<<\n",urlmb);
+//	if(urlmb!=NULL)
+//		{
+//			release=sliceBetween(urlmb,(char*)"href=\"",(char*)"\">");
+//			if(release!=NULL)
+//				{
+//					asprintf(&command,"curl -sk \"%s/cover-art\"",release);
+//					printf(">>>%s<<<\n",command);
+//					fp=popen(command, "r");
+//					g_free(command);
+//
+//					g_string_erase(buffer,0,-1);
+//					while(fgets(line,1024,fp))
+//						g_string_append_printf(buffer,"%s",line);
+//					pclose(fp);
+//
+//					artwork=sliceBetween(buffer->str,(char*)"<img src=\"",(char*)"\"");
+//					if(artwork[0]=='/')
+//						{
+//							asprintf(&newart,"http:%s",artwork);
+//							printf(">>>>>>>>>>>>>>>>>>>\n");
+//							free(artwork);
+//							artwork=strdup(newart);
+//							free(newart);
+//							printf("<<<<<<<<<<<<<<<<<\n");
+//						}
+//
+//					if(artwork!=NULL)
+//						{
+//							asprintf(&command,"wget \"%s\" -O \"%s\"",artwork,flacimage);
+//							system(command);
+//							g_free(command);
+//							asprintf(&command,"cp \"%s\" \"%s\"",flacimage,mp4image);
+//							system(command);
+//							g_free(command);
+//							asprintf(&command,"cp \"%s\" \"%s\"",flacimage,mp3image);
+//							system(command);
+//							g_free(command);
+//						}
+//				}
+//			}
+//
+//printf("cccccccccccccccccccccc\n");
+//	if(release!=NULL)
+//		g_free(release);
+//	if(artwork!=NULL)
+//		g_free(artwork);
+//	if(flacimage!=NULL)
+//		g_free(flacimage);
+//	if(mp4image!=NULL)
+//		g_free(mp4image);
+//	if(mp3image!=NULL)
+//		g_free(mp3image);
+//
+//	g_string_free(buffer,true);
+//printf("dddddddddddddddddd\n");
 }
 
 gboolean doneRipping(gpointer data)
