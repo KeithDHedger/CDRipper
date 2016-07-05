@@ -352,6 +352,7 @@ gpointer doTheRip(gpointer data)
 	char*			cdnum=NULL;
 	char*			tagdata;
 	const char*		artistfolder;
+	const char		*tagartist;
 
 	if(isCompilation==true)
 		artistfolder=COMPILATIONARTIST;
@@ -385,8 +386,13 @@ gpointer doTheRip(gpointer data)
 					g_free(command);
 
 //set tags
+					if(isCompilation==true)
+						tagartist=gtk_entry_get_text((GtkEntry*)trackArtist[i]);
+					else
+						tagartist=gtk_entry_get_text((GtkEntry*)artistEntry);
+
 					asprintf(&tagdata,"kute --artist=\"%s\" --album=\"%s\" --title=\"%s\" --track=%i --total-tracks=%i --year=\"%s\" --genre=\"%s\" --comment=\"Ripped and tagged by K.D.Hedger\" --cd=\"%s\""
-					,gtk_entry_get_text((GtkEntry*)trackArtist[i])
+					,tagartist
 					,gtk_entry_get_text((GtkEntry*)albumEntry)
 					,gtk_entry_get_text((GtkEntry*)trackName[i])
 					,i
