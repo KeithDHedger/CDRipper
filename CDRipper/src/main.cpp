@@ -25,6 +25,8 @@
 struct option long_options[] =
 	{
 		{"print",0,0,'p'},
+		{"artist",1,0,'a'},
+		{"album",1,0,'A'},
 		{"rip",0,0,'r'},
 		{"version",0,0,'v'},
 		{"help",0,0,'?'},
@@ -36,6 +38,8 @@ void printhelp(void)
 printf("Usage: getcoverart [OPTION]\n"
 	"A CLI application\n"
 	" -p, --print	Print Details\n"
+	" -a, --artist	Force Artist Name\n"
+	" -A, --album	Force Album Name\n"
 	" -r, --rip	Rip disc\n"
 	" -v, --version	output version information and exit\n"
 	" -h, -?, --help	print this help\n\n"
@@ -46,7 +50,7 @@ printf("Usage: getcoverart [OPTION]\n"
 void init (void)
 {
 	FILE*	fd=NULL;
-	char*	filename;
+	char	*filename;
 	char	buffer[1024];
 	char	name[256];
 	char	strarg[256];
@@ -66,17 +70,17 @@ void init (void)
 
 					if(strcasecmp(name,"flacdir")==0)
 						{
-							sscanf(buffer,"%*s %"VALIDFILENAMECHARS"s",(char*)&strarg);
+							sscanf(buffer,"%*s %" VALIDFILENAMECHARS "s",(char*)&strarg);
 							asprintf(&flacFolder,"%s",strarg);
 						}
 					if(strcasecmp(name,"mp4dir")==0)
 						{
-							sscanf(buffer,"%*s %"VALIDFILENAMECHARS"s",(char*)&strarg);
+							sscanf(buffer,"%*s %" VALIDFILENAMECHARS "s",(char*)&strarg);
 							asprintf(&mp4Folder,"%s",strarg);
 						}
 					if(strcasecmp(name,"mp3dir")==0)
 						{
-							sscanf(buffer,"%*s %"VALIDFILENAMECHARS"s",(char*)&strarg);
+							sscanf(buffer,"%*s %" VALIDFILENAMECHARS "s",(char*)&strarg);
 							asprintf(&mp3Folder,"%s",strarg);
 						}
 				}
@@ -88,12 +92,10 @@ void init (void)
 int main(int argc, char **argv)
 {
 	int				c;
-	char*			command;
+	char			*command;
 	cddb_disc_t*	disc=NULL;
 	cddb_disc_t*	tempdisc;
 
-	album=(char*)"";
-	artist=(char*)"";
 	tmpDir=g_dir_make_tmp("CDRipXXXXXX",NULL);
 	if(tmpDir==NULL)
 		{
@@ -106,13 +108,18 @@ int main(int argc, char **argv)
 	while (1)
 		{
 			int option_index=0;
-			c=getopt_long(argc,argv,"v?hrpr",long_options,&option_index);
+			c=getopt_long(argc,argv,"v?hrpra:A:",long_options,&option_index);
 			if (c==-1)
 				break;
 
 			switch(c)
 				{
-
+					case 'a':
+						artist=optarg;
+						break;
+					case 'A':
+						album=optarg;
+						break;
 					case 'p':
 						print=true;
 						break;
@@ -147,6 +154,7 @@ int main(int argc, char **argv)
 			printf("\n");
 		}
 
+	unknownTrackCnt=0;
 	disc=readDisc();
 	if(disc==NULL)
 		{
@@ -158,7 +166,7 @@ int main(int argc, char **argv)
 	if (discMatches==NULL)
 		{
 			printf("No matches found for disc :(\n");
-			return(1);
+//			return(1);
 		}
 	cddb_disc_destroy(disc);
 
@@ -169,7 +177,10 @@ int main(int argc, char **argv)
 	gtk_init(&argc,&argv);
 
 //add possible matches here
-	tempdisc=(cddb_disc_t *)discMatches->data;
+	if(discMatches!=NULL)
+		tempdisc=(cddb_disc_t *)discMatches->data;
+	else
+		tempdisc=NULL;
 	if(print==true)
 		printDetails(tempdisc);
 	else

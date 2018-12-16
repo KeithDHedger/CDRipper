@@ -26,9 +26,9 @@
 
 #define APPNAME "CD Ripper"
 
-extern char*			album;
-extern char*			artist;
-extern char*			genre;
+extern char			*album;
+extern char			*artist;
+extern char			*genre;
 extern unsigned int		year;
 extern GtkWidget*		trackName[100];
 extern GtkWidget*		trackArtist[100];
@@ -45,36 +45,37 @@ extern GtkWidget*		windowScrollbox;
 
 extern bool				print;
 extern bool				download;
-extern const char*		cdrom;
+extern const char		*cdrom;
 extern cddb_disc_t*		disc;
 extern int				startTrack;
 extern int				numTracks;
 extern bool				startSelect;
 
 extern GList*			discMatches;
+extern int				unknownTrackCnt;
 
 extern bool				justQuit;
 extern bool				isCompilation;
 
 extern bool				ripit;
-extern char*			tmpDir;
+extern char			*tmpDir;
 
 extern GtkWindow*		window;
 
-extern char*			flacFolder;
-extern char*			mp4Folder;
-extern char*			mp3Folder;
+extern char				*flacFolder;
+extern char				*mp4Folder;
+extern char				*mp3Folder;
 
 extern bool				ripFlac;
 extern bool				ripMp4;
 extern bool				ripMp3;
 extern bool				ripLowQMp3;
 
-char* sliceStrLen(char* srcstring,char* startstr,int len);
-char* sliceLen(char* srcstring,int tmpstartchar,int len);
-char* sliceBetween(char* srcstring,char* startstr,char* endstr);
-char* slice(char* srcstring,int tmpstartchar,int tmpendchar);
-char* sliceDeleteChar(char* srcstring,char chr);
-char* sliceDeleteRange(char* srcstring,const char* chars);
+char *sliceStrLen(char *srcstring,char *startstr,int len);
+char *sliceLen(char *srcstring,int tmpstartchar,int len);
+char *sliceBetween(char *srcstring,char *startstr,char *endstr);
+char *slice(char *srcstring,int tmpstartchar,int tmpendchar);
+char *sliceDeleteChar(char *srcstring,char chr);
+char *sliceDeleteRange(char *srcstring,const char *chars);
 
 #endif

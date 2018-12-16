@@ -76,9 +76,12 @@ cddb_disc_t* readDisc(void)
 
 									cddb_track_set_frame_offset(track,te.cdte_addr.lba+SECONDS_TO_FRAMES(2));
 									snprintf(trackname,9,"Track %d",i);
+									//printf(">>>%p<<<<\n",cddb_track_get_title(track));
+
 									cddb_track_set_title(track,trackname);
 									cddb_track_set_artist(track,"Unknown Artist");
 									cddb_disc_add_track(disc,track);
+									unknownTrackCnt++;
 								}
 						}
 
@@ -109,7 +112,6 @@ GList* lookupDisc(cddb_disc_t* disc)
 	cddb_set_server_port(connection,8880);
 
 	numMatches=cddb_query(connection, disc);
-//printf("ZZZZZ%i\n",numMatches);
 
 	// make a list of all the matches
 	for (int i=0;i<numMatches;i++)
@@ -137,74 +139,63 @@ GList* lookupDisc(cddb_disc_t* disc)
 
 void printDetails(cddb_disc_t* disc)
 {
-	char*			disc_artist=(char*)cddb_disc_get_artist(disc);
-	char*			disc_title=(char*)cddb_disc_get_title(disc);
-	char*			disc_genre=(char*)cddb_disc_get_genre(disc);
-	unsigned		disc_year=cddb_disc_get_year(disc);
-	cddb_track_t*	track;
-	int				tracknum=1;
-
-	if(disc_artist!=NULL)
+	if(disc!=NULL)
 		{
-			printf("Artist - %s\n",disc_artist);
-			artist=(char*)cddb_disc_get_artist(disc);
-		}
-	if(disc_artist!=NULL)
-		{
-			printf("Album - %s\n",disc_title);
-			album=(char*)cddb_disc_get_title(disc);
-		}
+			char			*disc_artist=(char*)cddb_disc_get_artist(disc);
+			char			*disc_title=(char*)cddb_disc_get_title(disc);
+			char			*disc_genre=(char*)cddb_disc_get_genre(disc);
+			unsigned		disc_year=cddb_disc_get_year(disc);
+			cddb_track_t*	track;
+			int				tracknum=1;
 
-	printf("Genre - %s\n",disc_genre);
-	printf("Year - %i\n",disc_year);
-
-	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
-        {
-			printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
-			printf("Track Artist - %s\n",cddb_track_get_artist(track));
-  			tracknum++;
-        }
-}
-//cdda2wav dev=/dev/cdrom -t ${TNUM}+${TNUM} -alltracks -max
-/*
-	asprintf(&command,"curl -sk \"https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%s+%s&as_filetype=jpg&imgsz=large&rsz=1\"",artist,album);
-
-	fp=popen(command, "r");
-	fgets((char*)&buffer[0],16384,fp);
-
-	url=sliceBetween((char*)buffer,(char*)"unescapedUrl\":\"",(char*)"\",\"");
-	if(url!=NULL)
-		{
-			printf("%s\n",url);
-			if(download==true)
+			if(disc_artist!=NULL)
 				{
-					asprintf(&command,"curl -sko folder.jpg %s",url);
-					system(command);
+					printf("Artist - %s\n",disc_artist);
+					artist=(char*)cddb_disc_get_artist(disc);
+				}
+			if(disc_artist!=NULL)
+				{
+					printf("Album - %s\n",disc_title);
+					album=(char*)cddb_disc_get_title(disc);
+				}
+
+			printf("Genre - %s\n",disc_genre);
+			printf("Year - %i\n",disc_year);
+
+			for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
+		        {
+					printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
+					printf("Track Artist - %s\n",cddb_track_get_artist(track));
+		  			tracknum++;
+		        }
+		}
+	else
+		{
+			if(artist!=NULL)
+				printf("Artist - %s\n",artist);
+			if(album!=NULL)
+				printf("Artist - %s\n",album);
+
+			for(int i=1;i<=unknownTrackCnt;i++)
+				{
+					printf("Track %2.2i - %s\n",i,"Unknown Track");
 				}
 		}
-	pclose(fp);
-	if(command!=NULL)
-		g_free(command);
-//curl -sk "http://musicbrainz.org/search?query=various+story+songs&type=release&method=indexed" > curlout
-//curl -sk "http://musicbrainz.org/release/5b3432b9-0f01-447b-8dbd-9a7f4f1bf61e/cover-art"
-//<img src="http://ecx.images-amazon.com/images/I/51LlZiD3uFL.jpg" />
-//	asprintf(&command,"curl -sk \"https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=%s+%s&as_filetype=jpg&imgsz=large&rsz=1\"",artist,album);
-
-*/
+}
 
 void getAlbumArt()
 {
-	char*			command;
+	char			*command;
 	FILE*			fp=NULL;
 	GString*		buffer=g_string_new(NULL);;
 	char			line[1024];
-	char*			urlmb=NULL;
-	char*			release=NULL;
-	char*			artwork=NULL;
-	char*			flacimage=NULL;
-	char*			mp4image=NULL;
-	char*			mp3image=NULL;
-	const char*		artistfolder=NULL;
+	char			*urlmb=NULL;
+	char			*release=NULL;
+	char			*artwork=NULL;
+	char			*flacimage=NULL;
+	char			*mp4image=NULL;
+	char			*mp3image=NULL;
+	const char		*artistfolder=NULL;
 	char			*newart=NULL;
 	asprintf(&album,"%s",gtk_entry_get_text((GtkEntry*)albumEntry));
 	asprintf(&artist,"%s",gtk_entry_get_text((GtkEntry*)artistEntry));
@@ -214,9 +205,8 @@ void getAlbumArt()
 	else
 		artistfolder=artist;
 
-//glyrc cover --artist "Tom Waits" --album "orphans" -F jpeg --write '/tmp/Tom Waits/folder.jpg' &>/dev/null
-//	asprintf(&command,"cd /tmp;glyrc cover --artist \"%s\" --album \"%s\" -F jpeg --write '%s/%s/%s/folder.jpg' &>/dev/null",artist,album,flacFolder,artist,album);
-	asprintf(&command,"glyrc cover --artist \"%s\" --album \"%s\" -F jpeg --write '/tmp/folder.jpg' &>/dev/null",artist,album);
+//	asprintf(&command,"glyrc cover --artist \"%s\" --album \"%s\" -F jpeg --write '/tmp/folder.jpg' &>/dev/null",artist,album);
+	asprintf(&command,"curl $(wget \"https://www.discogs.com/search/?q=%s %s 2014-2017&type=all\" -O - 2>&1|cat -|grep -i jpg|sed -n 's@<img data-src=\"\\(.*\\)\\.jpg.*\"@\\1.jpg@p') --output /tmp/folder.jpg",artist,album);
 	system(command);
 	g_free(command);
 
@@ -226,94 +216,20 @@ void getAlbumArt()
 			system(command);
 			g_free(command);		
 		}
+
 	if(ripMp4==true)
 		{
 			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",mp4Folder,artist,album);
 			system(command);
 			g_free(command);		
 		}
+
 	if(ripMp3==true)
 		{
 			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",mp3Folder,artist,album);
 			system(command);
 			g_free(command);		
 		}
-
-//	asprintf(&flacimage,"%s/%s/%s/folder.jpg",flacFolder,artistfolder,album);
-//	asprintf(&mp4image,"%s/%s/%s/folder.jpg",mp4Folder,artistfolder,album);
-//	asprintf(&mp3image,"%s/%s/%s/folder.jpg",mp3Folder,artistfolder,album);
-//
-//	album=g_strdelimit(album," ",'+');
-//	artist=g_strdelimit(artist," ",'+');
-//	asprintf(&command,"curl -sk -G $(echo 'http://musicbrainz.org/search?query=%s+%s&type=release&method=indexed'|sed 's/ /%20/g')",artist,album);
-//					printf(">>>%s<<<\n",command);
-//
-//	fp=popen(command, "r");
-//	g_free(command);
-//	if(fp!=NULL)
-//		{
-//			while(fgets(line,1024,fp))
-//				g_string_append_printf(buffer,"%s",line);
-//			pclose(fp);
-//		}
-//
-//	urlmb=strstr(buffer->str,"href=\"http://musicbrainz.org/release");
-//					printf(">>>urlmb=%s<<<\n",urlmb);
-//	if(urlmb!=NULL)
-//		{
-//			release=sliceBetween(urlmb,(char*)"href=\"",(char*)"\">");
-//			if(release!=NULL)
-//				{
-//					asprintf(&command,"curl -sk \"%s/cover-art\"",release);
-//					printf(">>>%s<<<\n",command);
-//					fp=popen(command, "r");
-//					g_free(command);
-//
-//					g_string_erase(buffer,0,-1);
-//					while(fgets(line,1024,fp))
-//						g_string_append_printf(buffer,"%s",line);
-//					pclose(fp);
-//
-//					artwork=sliceBetween(buffer->str,(char*)"<img src=\"",(char*)"\"");
-//					if(artwork[0]=='/')
-//						{
-//							asprintf(&newart,"http:%s",artwork);
-//							printf(">>>>>>>>>>>>>>>>>>>\n");
-//							free(artwork);
-//							artwork=strdup(newart);
-//							free(newart);
-//							printf("<<<<<<<<<<<<<<<<<\n");
-//						}
-//
-//					if(artwork!=NULL)
-//						{
-//							asprintf(&command,"wget \"%s\" -O \"%s\"",artwork,flacimage);
-//							system(command);
-//							g_free(command);
-//							asprintf(&command,"cp \"%s\" \"%s\"",flacimage,mp4image);
-//							system(command);
-//							g_free(command);
-//							asprintf(&command,"cp \"%s\" \"%s\"",flacimage,mp3image);
-//							system(command);
-//							g_free(command);
-//						}
-//				}
-//			}
-//
-//printf("cccccccccccccccccccccc\n");
-//	if(release!=NULL)
-//		g_free(release);
-//	if(artwork!=NULL)
-//		g_free(artwork);
-//	if(flacimage!=NULL)
-//		g_free(flacimage);
-//	if(mp4image!=NULL)
-//		g_free(mp4image);
-//	if(mp3image!=NULL)
-//		g_free(mp3image);
-//
-//	g_string_free(buffer,true);
-//printf("dddddddddddddddddd\n");
 }
 
 gboolean doneRipping(gpointer data)
@@ -344,14 +260,14 @@ gboolean updateBarTimer(gpointer data)
 
 gpointer doTheRip(gpointer data)
 {
-	char*			command;
+	char			*command;
 	FILE*			fp;
 	cddb_disc_t*	disc=(cddb_disc_t*)data;
-	char*			filename=NULL;
-	char*			cdstr=g_strdup(gtk_entry_get_text((GtkEntry*)cdEntry));
-	char*			cdnum=NULL;
-	char*			tagdata;
-	const char*		artistfolder;
+	char			*filename=NULL;
+	char			*cdstr=g_strdup(gtk_entry_get_text((GtkEntry*)cdEntry));
+	char			*cdnum=NULL;
+	char			*tagdata;
+	const char		*artistfolder;
 	const char		*tagartist;
 
 	if(isCompilation==true)
@@ -392,7 +308,7 @@ gpointer doTheRip(gpointer data)
 						tagartist=gtk_entry_get_text((GtkEntry*)artistEntry);
 
 					asprintf(&tagdata,"kute --artist=\"%s\" --album=\"%s\" --title=\"%s\" --track=%i --total-tracks=%i --year=\"%s\" --genre=\"%s\" --comment=\"Ripped and tagged by K.D.Hedger\" --cd=\"%s\""
-					,tagartist
+					,gtk_entry_get_text((GtkEntry*)trackArtist[i])
 					,gtk_entry_get_text((GtkEntry*)albumEntry)
 					,gtk_entry_get_text((GtkEntry*)trackName[i])
 					,i
@@ -531,13 +447,22 @@ void doSelectAll(GtkWidget* widget,gpointer data)
 
 void doDetails(cddb_disc_t* disc)
 {
-	char*			disc_artist=(char*)cddb_disc_get_artist(disc);
-	char*			disc_title=(char*)cddb_disc_get_title(disc);
-	char*			disc_genre=(char*)cddb_disc_get_genre(disc);
+	char			*disc_artist=(char*)cddb_disc_get_artist(disc);
+	char			*disc_title=(char*)cddb_disc_get_title(disc);
+	char			*disc_genre=(char*)cddb_disc_get_genre(disc);
 	unsigned		disc_year=cddb_disc_get_year(disc);
 	cddb_track_t*	track;
 	int				tracknum=1;
-	char*			tmpstr;
+	char			*tmpstr;
+
+	if(artist!=NULL)
+		disc_artist=(char*)artist;
+	else
+		artist=(char*)cddb_disc_get_artist(disc);
+	if(album!=NULL)
+		disc_title=(char*)album;
+	else
+		album=(char*)cddb_disc_get_title(disc);
 
 	GtkWidget*		hbox;
 
@@ -557,7 +482,6 @@ void doDetails(cddb_disc_t* disc)
 
 	if(disc_artist!=NULL)
 		{
-			artist=(char*)cddb_disc_get_artist(disc);
 			gtk_entry_set_text((GtkEntry*)artistEntry,artist);
 		}
 
@@ -570,7 +494,6 @@ void doDetails(cddb_disc_t* disc)
 
 	if(disc_title!=NULL)
 		{
-			album=(char*)cddb_disc_get_title(disc);
 			gtk_entry_set_text((GtkEntry*)albumEntry,album);
 		}
 
@@ -632,38 +555,72 @@ void doDetails(cddb_disc_t* disc)
 
 	gtk_box_pack_start(GTK_BOX(detailsVBox),gtk_hseparator_new(),false,true,4);
 
-	for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
+	if(disc!=NULL)
 		{
-			hbox=gtk_hbox_new(false,0);
-			gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Track Artist:	"),false,false,0);
-			trackArtist[tracknum]=gtk_entry_new();
-			gtk_box_pack_start(GTK_BOX(hbox),trackArtist[tracknum],true,true,0);
-			gtk_entry_set_text((GtkEntry*)trackArtist[tracknum],cddb_track_get_artist(track));
-
-			if(strcasecmp(cddb_track_get_artist(track),artist)!=0)
+			for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
 				{
+					hbox=gtk_hbox_new(false,0);
+					gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Track Artist:	"),false,false,0);
+					trackArtist[tracknum]=gtk_entry_new();
+					gtk_box_pack_start(GTK_BOX(hbox),trackArtist[tracknum],true,true,0);
+					gtk_entry_set_text((GtkEntry*)trackArtist[tracknum],cddb_track_get_artist(track));
+
+					if(strcasecmp(cddb_track_get_artist(track),artist)!=0)
+						{
+							gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
+						}
+
+					hbox=gtk_hbox_new(false,0);
+					asprintf(&tmpstr,"Track %2.2i:		",tracknum);
+					gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new(tmpstr),false,false,0);
+					g_free(tmpstr);
+					trackName[tracknum]=gtk_entry_new();
+					gtk_box_pack_start(GTK_BOX(hbox),trackName[tracknum],true,true,0);
+					gtk_entry_set_text((GtkEntry*)trackName[tracknum],cddb_track_get_title(track));
+
+					gtk_widget_set_sensitive(trackName[tracknum],startSelect);
+					gtk_widget_set_sensitive(trackArtist[tracknum],startSelect);
+
+					ripThis[tracknum]=gtk_check_button_new_with_label("");
+					gtk_box_pack_start(GTK_BOX(hbox),ripThis[tracknum],false,false,0);
+					g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)(long)tracknum);
+
 					gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
+		  			tracknum++;
 				}
+		}
+	else
+		{
+			for(int i=1;i<=unknownTrackCnt;i++)
+				{
+					hbox=gtk_hbox_new(false,0);
+					gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Track Artist:	"),false,false,0);
+					trackArtist[tracknum]=gtk_entry_new();
+					gtk_box_pack_start(GTK_BOX(hbox),trackArtist[tracknum],true,true,0);
+					if(artist!=NULL)
+						gtk_entry_set_text((GtkEntry*)trackArtist[tracknum],artist);
+					else
+						gtk_entry_set_text((GtkEntry*)trackArtist[tracknum],"Unknown");
+					gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 
-		//	printf("Track Artist - %s\n",cddb_track_get_artist(track));
-			hbox=gtk_hbox_new(false,0);
-			asprintf(&tmpstr,"Track %2.2i:		",tracknum);
-			gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new(tmpstr),false,false,0);
-			g_free(tmpstr);
-			trackName[tracknum]=gtk_entry_new();
-			gtk_box_pack_start(GTK_BOX(hbox),trackName[tracknum],true,true,0);
-			gtk_entry_set_text((GtkEntry*)trackName[tracknum],cddb_track_get_title(track));
+					hbox=gtk_hbox_new(false,0);
+					asprintf(&tmpstr,"Track %2.2i:		",tracknum);
+					gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new(tmpstr),false,false,0);
+					g_free(tmpstr);
+					trackName[tracknum]=gtk_entry_new();
+					gtk_box_pack_start(GTK_BOX(hbox),trackName[tracknum],true,true,0);
+					gtk_entry_set_text((GtkEntry*)trackName[tracknum],"Untitled");
 
-			gtk_widget_set_sensitive(trackName[tracknum],startSelect);
-			gtk_widget_set_sensitive(trackArtist[tracknum],startSelect);
+					gtk_widget_set_sensitive(trackName[tracknum],startSelect);
+					gtk_widget_set_sensitive(trackArtist[tracknum],startSelect);
 
-			ripThis[tracknum]=gtk_check_button_new_with_label("");
-			gtk_box_pack_start(GTK_BOX(hbox),ripThis[tracknum],false,false,0);
-			g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)(long)tracknum);
+					ripThis[tracknum]=gtk_check_button_new_with_label("");
+					gtk_box_pack_start(GTK_BOX(hbox),ripThis[tracknum],false,false,0);
+					g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)(long)tracknum);
 
-			gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
-		//	printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
-  			tracknum++;
+					gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
+		  			tracknum++;
+				}
 		}
 
 	gtk_widget_show_all(detailsVBox);

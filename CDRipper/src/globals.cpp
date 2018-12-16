@@ -14,9 +14,9 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-char*			album;
-char*			artist;
-char*			genre;
+char			*album=NULL;
+char			*artist=NULL;
+char			*genre=NULL;
 unsigned int	year;
 GtkWidget*		trackName[100];
 GtkWidget*		trackArtist[100];
@@ -33,24 +33,25 @@ GtkWidget*		windowScrollbox;
 
 bool			print=false;
 bool			download=true;
-const char*		cdrom="/dev/cdrom";
+const char		*cdrom="/dev/cdrom";
 cddb_disc_t*	disc=NULL;
 int				startTrack;
 int				numTracks;
 bool			ripit=false;
-char*			tmpDir=NULL;
+char			*tmpDir=NULL;
 bool			startSelect=false;
 
 GList*			discMatches=NULL;
+int				unknownTrackCnt=0;
 
 bool			justQuit=false;
 bool			isCompilation=false;
 
 GtkWindow*		window;
 
-char*			flacFolder=NULL;
-char*			mp4Folder=NULL;
-char*			mp3Folder=NULL;
+char			*flacFolder=NULL;
+char			*mp4Folder=NULL;
+char			*mp3Folder=NULL;
 
 bool			ripFlac=true;
 bool			ripMp4=false;
@@ -60,9 +61,9 @@ bool			ripLowQMp3=false;
 //global routines
 //string sliceing
 
-char* slice(char* srcstring,int tmpstartchar,int tmpendchar)
+char *slice(char *srcstring,int tmpstartchar,int tmpendchar)
 {
-	char*	dest;
+	char	*dest;
 	int		strsize;
 	int		startchar=tmpstartchar;
 	int		endchar=tmpendchar;
@@ -82,12 +83,12 @@ char* slice(char* srcstring,int tmpstartchar,int tmpendchar)
 	return(dest);
 }
 
-char* sliceBetween(char* srcstring,char* startstr,char* endstr)
+char *sliceBetween(char *srcstring,char *startstr,char *endstr)
 {
 	int		startchar;
 	int		endchar;
-	char*	ptr;
-	char*	dest=NULL;
+	char	*ptr;
+	char	*dest=NULL;
 
 	ptr=strstr(srcstring,startstr);
 	if(ptr==NULL)
@@ -103,9 +104,9 @@ char* sliceBetween(char* srcstring,char* startstr,char* endstr)
 	return(dest);
 }
 
-char* sliceLen(char* srcstring,int tmpstartchar,int len)
+char *sliceLen(char *srcstring,int tmpstartchar,int len)
 {
-	char*	dest;
+	char	*dest;
 	int		strsize;
 	int		startchar=tmpstartchar;
 	int		endchar=len;
@@ -126,9 +127,9 @@ char* sliceLen(char* srcstring,int tmpstartchar,int len)
 
 }
 
-char* sliceStrLen(char* srcstring,char* startstr,int len)
+char *sliceStrLen(char *srcstring,char *startstr,int len)
 {
-	char*	ptr;
+	char	*ptr;
 	int		startchar;
 
 	ptr=strstr(srcstring,startstr);
@@ -139,11 +140,11 @@ char* sliceStrLen(char* srcstring,char* startstr,int len)
 	return(sliceLen(srcstring,startchar,len));
 }
 
-char* sliceDeleteChar(char* srcstring,char chr)
+char *sliceDeleteChar(char *srcstring,char chr)
 {
-	char*	buffer;
-	char*	destptr;
-	char*	retstr=NULL;
+	char	*buffer;
+	char	*destptr;
+	char	*retstr=NULL;
 
 	buffer=(char*)malloc(strlen(srcstring)+1);
 	destptr=buffer;
@@ -163,11 +164,11 @@ char* sliceDeleteChar(char* srcstring,char chr)
 	return(retstr);
 }
 
-char* sliceDeleteRange(char* srcstring,const char* chars)
+char *sliceDeleteRange(char *srcstring,const char *chars)
 {
-	char*	buffer;
-	char*	destptr;
-	char*	retstr=NULL;
+	char	*buffer;
+	char	*destptr;
+	char	*retstr=NULL;
 //	int		i;
 	bool	flag;
 
