@@ -6,7 +6,6 @@ CDRipper/app/cdripper
 autom4te.cache
 *.status
 stamp-h1
-
 config.h
 Makefile
 
