@@ -61,6 +61,7 @@ cddb_disc_t* readDisc(void)
 					numTracks=th.cdth_trk1;
 
 					disc=cddb_disc_new();
+
 					if (disc==NULL)
 						printf("cddb_disc_new() failed. Out of memory?");
 
@@ -107,12 +108,14 @@ GList* lookupDisc(cddb_disc_t* disc)
 	if (connection==NULL)
 		printf("cddb_new() failed. Out of memory?");
     
-	cddb_set_server_name(connection,"freedb.freedb.org");
+//	cddb_set_server_name(connection,"freedb.freedb.org");
 //	cddb_set_server_name(connection,"freedb.musicbrainz.org");
+//	cddb_set_server_name(connection,"musicbrainz.org");
+	cddb_set_server_name(connection,"gnudb.gnudb.org");
 	cddb_set_server_port(connection,8880);
 
-	numMatches=cddb_query(connection, disc);
-
+	numMatches=cddb_query(connection,disc);
+	discID=cddb_disc_get_discid(disc);
 	// make a list of all the matches
 	for (int i=0;i<numMatches;i++)
 		{
@@ -148,6 +151,8 @@ void printDetails(cddb_disc_t* disc)
 			cddb_track_t*	track;
 			int				tracknum=1;
 
+			printf("Disc ID - %x\n",discID);
+
 			if(disc_artist!=NULL)
 				{
 					printf("Artist - %s\n",disc_artist);
@@ -181,6 +186,8 @@ void printDetails(cddb_disc_t* disc)
 					printf("Track %2.2i - %s\n",i,"Unknown Track");
 				}
 		}
+//	printf("\n");
+//	cddb_disc_print	( disc) ;
 }
 
 void getAlbumArt()
@@ -206,7 +213,7 @@ void getAlbumArt()
 		artistfolder=artist;
 
 //	asprintf(&command,"glyrc cover --artist \"%s\" --album \"%s\" -F jpeg --write '/tmp/folder.jpg' &>/dev/null",artist,album);
-	asprintf(&command,"curl $(wget \"https://www.discogs.com/search/?q=%s %s 2014-2017&type=all\" -O - 2>&1|cat -|grep -i jpg|sed -n 's@<img data-src=\"\\(.*\\)\\.jpg.*\"@\\1.jpg@p') --output /tmp/folder.jpg",artist,album);
+	asprintf(&command,"curl $(wget --user-agent='%s' --no-netrc --random-wait --tries=4 --waitretry=1 \"https://www.discogs.com/search/?q=%22%s%22+%22%s%22&type=all\" -O - 2>&1|cat -|grep -i jpg|sed -n 's@<img data-src=\"\\(.*\\)\\.jpg.*\"@\\1.jpg@p')|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",USERAGENT,artist,album);
 	system(command);
 	g_free(command);
 
@@ -307,7 +314,7 @@ gpointer doTheRip(gpointer data)
 					else
 						tagartist=gtk_entry_get_text((GtkEntry*)artistEntry);
 
-					asprintf(&tagdata,"kute --artist=\"%s\" --album=\"%s\" --title=\"%s\" --track=%i --total-tracks=%i --year=\"%s\" --genre=\"%s\" --comment=\"Ripped and tagged by K.D.Hedger\" --cd=\"%s\""
+					asprintf(&tagdata,"kute --artist=\"%s\" --album=\"%s\" --title=\"%s\" --track=%i --total-tracks=%i --year=\"%s\" --genre=\"%s\" --comment=\"Ripped and tagged by K.D.Hedger\" --cd=\"%s\" --discid=\"%s\""
 					,gtk_entry_get_text((GtkEntry*)trackArtist[i])
 					,gtk_entry_get_text((GtkEntry*)albumEntry)
 					,gtk_entry_get_text((GtkEntry*)trackName[i])
@@ -316,6 +323,7 @@ gpointer doTheRip(gpointer data)
 					,gtk_entry_get_text((GtkEntry*)yearEntry)
 					,gtk_entry_get_text((GtkEntry*)genreEntry)
 					,cdstr
+					,gtk_entry_get_text((GtkEntry*)discIDEntry)
 					);
 
 					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.");
@@ -532,6 +540,16 @@ void doDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(hbox),cdEntry,true,true,0);
 	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 	gtk_entry_set_text((GtkEntry*)cdEntry,"1");
+
+//discid
+	hbox=gtk_hbox_new(false,0);
+	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Disc ID:\t\t"),false,false,0);
+	discIDEntry=gtk_entry_new();
+	gtk_box_pack_start(GTK_BOX(hbox),discIDEntry,true,true,0);
+	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
+	asprintf(&tmpstr,"%x",discID);
+	gtk_entry_set_text((GtkEntry*)discIDEntry,tmpstr);
+	g_free(tmpstr);
 
 //comp
 	hbox=gtk_hbox_new(false,0);

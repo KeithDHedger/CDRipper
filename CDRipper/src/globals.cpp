@@ -18,6 +18,8 @@ char			*album=NULL;
 char			*artist=NULL;
 char			*genre=NULL;
 unsigned int	year;
+unsigned int	discID=0;
+
 GtkWidget*		trackName[100];
 GtkWidget*		trackArtist[100];
 GtkWidget*		ripThis[100];
@@ -26,6 +28,7 @@ GtkWidget*		artistEntry=NULL;
 GtkWidget*		genreEntry;
 GtkWidget*		yearEntry;
 GtkWidget*		cdEntry;
+GtkWidget*		discIDEntry;
 
 GtkWidget*		mainWindowVBox;
 GtkWidget*		detailsVBox=NULL;
