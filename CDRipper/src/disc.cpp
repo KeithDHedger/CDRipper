@@ -186,8 +186,6 @@ void printDetails(cddb_disc_t* disc)
 					printf("Track %2.2i - %s\n",i,"Unknown Track");
 				}
 		}
-//	printf("\n");
-//	cddb_disc_print	( disc) ;
 }
 
 void getAlbumArt()
@@ -204,8 +202,9 @@ void getAlbumArt()
 	char			*mp3image=NULL;
 	const char		*artistfolder=NULL;
 	char			*newart=NULL;
-	asprintf(&album,"%s",gtk_entry_get_text((GtkEntry*)albumEntry));
-	asprintf(&artist,"%s",gtk_entry_get_text((GtkEntry*)artistEntry));
+
+	album=gtk_entry_get_text((GtkEntry*)albumEntry);
+	artist=gtk_entry_get_text((GtkEntry*)artistEntry);
 
 	if(isCompilation==true)
 		artistfolder=COMPILATIONARTIST;
@@ -213,7 +212,7 @@ void getAlbumArt()
 		artistfolder=artist;
 
 //	asprintf(&command,"glyrc cover --artist \"%s\" --album \"%s\" -F jpeg --write '/tmp/folder.jpg' &>/dev/null",artist,album);
-	asprintf(&command,"curl $(wget --user-agent='%s' --no-netrc --random-wait --tries=4 --waitretry=1 \"https://www.discogs.com/search/?q=%22%s%22+%22%s%22&type=all\" -O - 2>&1|cat -|grep -i jpg|sed -n 's@<img data-src=\"\\(.*\\)\\.jpg.*\"@\\1.jpg@p')|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",USERAGENT,artist,album);
+	asprintf(&command,"curl $(wget --user-agent='%s' --no-netrc --random-wait --tries=4 --waitretry=1 \"https://www.discogs.com/search/?q=%%22%s%%22+%%22%s%%22&type=all\" -O - 2>&1|cat -|grep -i jpg|sed -n 's@<img data-src=\"\\(.*\\)\\.jpg.*\"@\\1.jpg@p')|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",USERAGENT,artist,album);
 	system(command);
 	g_free(command);
 
@@ -221,22 +220,23 @@ void getAlbumArt()
 		{
 			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",flacFolder,artist,album);
 			system(command);
-			g_free(command);		
+			g_free(command);
 		}
 
 	if(ripMp4==true)
 		{
 			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",mp4Folder,artist,album);
 			system(command);
-			g_free(command);		
+			g_free(command);
 		}
 
 	if(ripMp3==true)
 		{
 			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",mp3Folder,artist,album);
 			system(command);
-			g_free(command);		
+			g_free(command);
 		}
+	unlink("/tmp/folder.jpg");
 }
 
 gboolean doneRipping(gpointer data)
@@ -282,16 +282,6 @@ gpointer doTheRip(gpointer data)
 	else
 		artistfolder=gtk_entry_get_text((GtkEntry*)artistEntry);
 
-	asprintf(&command,"%s/%s/%s",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
-	g_mkdir_with_parents(command,493);
-	g_free(command);
-	asprintf(&command,"%s/%s/%s",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
-	g_mkdir_with_parents(command,493);
-	g_free(command);
-	asprintf(&command,"%s/%s/%s",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
-	g_mkdir_with_parents(command,493);
-	g_free(command);
-#if 1
 	if(strchr(cdstr,'/')!=NULL)
 		asprintf(&cdnum,"%i-",atoi(cdstr));
 	else
@@ -330,6 +320,10 @@ gpointer doTheRip(gpointer data)
 
 					if(ripFlac==true)
 						{
+							asprintf(&command,"%s/%s/%s",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+							g_mkdir_with_parents(command,493);
+							g_free(command);
+
 							system("flac -f --fast audio.wav");
 							asprintf(&command,"%s audio.flac",tagdata);
 							system(command);
@@ -340,7 +334,11 @@ gpointer doTheRip(gpointer data)
 						}
 					if(ripMp4==true)
 						{
-							system("ffmpeg -i audio.wav -qscale 0 audio.m4a");
+							asprintf(&command,"%s/%s/%s",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+							g_mkdir_with_parents(command,493);
+							g_free(command);
+
+							system("ffmpeg -i audio.wav -vn -map_metadata -1 -qscale 0 audio.m4a");
 							asprintf(&command,"%s audio.m4a",tagdata);
 							system(command);
 							g_free(command);
@@ -350,7 +348,11 @@ gpointer doTheRip(gpointer data)
 						}
 					if((ripMp3==true))
 						{
-							system("ffmpeg -i audio.wav -q:a 0 audio.mp3");
+							asprintf(&command,"%s/%s/%s",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+							g_mkdir_with_parents(command,493);
+							g_free(command);
+
+							system("ffmpeg -i audio.wav -b:a 256k -vn -map_metadata -1 audio.mp3 </dev/null");
 							asprintf(&command,"%s audio.mp3",tagdata);
 							system(command);
 							g_free(command);
@@ -365,10 +367,11 @@ gpointer doTheRip(gpointer data)
 					gtk_toggle_button_set_active((GtkToggleButton*)ripThis[i],false);
 				}
 		}
-#endif
+
 	getAlbumArt();
 	g_idle_add(doneRipping,progressWindow);
 	g_thread_exit(NULL);
+	return(NULL);
 }
 
 void ripTracks(GtkWidget* widg,gpointer data)
@@ -652,11 +655,16 @@ void freeData(gpointer data)
 
 void reScanCD(GtkWidget* widget,gpointer data)
 {
-	cddb_disc_t*	thedisc;
-	cddb_disc_t*	tempdisc;
+	cddb_disc_t*	thedisc=NULL;
+	cddb_disc_t*	tempdisc=NULL;
 
 	numTracks=0;
 	isCompilation=false;
+	g_list_free_full(discMatches,freeData);
+	discMatches=NULL;
+	artist=NULL;
+	album=NULL;
+	genre=NULL;
 
 	thedisc=readDisc();
 	if(thedisc==NULL)
@@ -665,19 +673,13 @@ void reScanCD(GtkWidget* widget,gpointer data)
 			return;
 		}
 
-	g_list_free_full(discMatches,freeData);
-	discMatches=NULL;
-
 	discMatches=lookupDisc(thedisc);
-	if (discMatches==NULL)
-		{
-			printf("No matches found for disc :(\n");
-			return;
-		}
+	if(discMatches!=NULL)
+		tempdisc=(cddb_disc_t *)discMatches->data;
+	else
+		tempdisc=NULL;
+
 	cddb_disc_destroy(thedisc);
-
-	tempdisc=(cddb_disc_t *)discMatches->data;
-
 	doDetails(tempdisc);
 }
 
@@ -765,12 +767,4 @@ void showCDDetails(cddb_disc_t* disc)
 	gtk_widget_show_all((GtkWidget*)window);
 	gtk_main();
 }
-
-
-
-
-
-
-
-
 

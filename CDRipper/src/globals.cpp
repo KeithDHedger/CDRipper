@@ -14,9 +14,9 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-char			*album=NULL;
-char			*artist=NULL;
-char			*genre=NULL;
+const char		*album=NULL;
+const char		*artist=NULL;
+const char		*genre=NULL;
 unsigned int	year;
 unsigned int	discID=0;
 
@@ -62,7 +62,7 @@ bool			ripMp3=false;
 bool			ripLowQMp3=false;
 
 //global routines
-//string sliceing
+//string slicing
 
 char *slice(char *srcstring,int tmpstartchar,int tmpendchar)
 {
@@ -172,7 +172,6 @@ char *sliceDeleteRange(char *srcstring,const char *chars)
 	char	*buffer;
 	char	*destptr;
 	char	*retstr=NULL;
-//	int		i;
 	bool	flag;
 
 	buffer=(char*)malloc(strlen(srcstring)+1);
@@ -200,12 +199,4 @@ char *sliceDeleteRange(char *srcstring,const char *chars)
 	g_free(buffer);
 	return(retstr);
 }
-
-
-
-
-
-
-
-
 

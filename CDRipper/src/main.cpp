@@ -181,6 +181,7 @@ int main(int argc, char **argv)
 		tempdisc=(cddb_disc_t *)discMatches->data;
 	else
 		tempdisc=NULL;
+
 	if(print==true)
 		printDetails(tempdisc);
 	else
