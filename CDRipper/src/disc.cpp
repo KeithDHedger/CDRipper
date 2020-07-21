@@ -110,9 +110,8 @@ GList* lookupDisc(cddb_disc_t* disc)
     
 //	cddb_set_server_name(connection,"freedb.freedb.org");
 //	cddb_set_server_name(connection,"freedb.musicbrainz.org");
-//	cddb_set_server_name(connection,"musicbrainz.org");
-	cddb_set_server_name(connection,"gnudb.gnudb.org");
-	cddb_set_server_port(connection,8880);
+	cddb_set_server_name(connection,musicDb);
+	cddb_set_server_port(connection,dbPort);
 
 	numMatches=cddb_query(connection,disc);
 	discID=cddb_disc_get_discid(disc);

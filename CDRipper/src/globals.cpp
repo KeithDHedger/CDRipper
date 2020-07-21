@@ -52,6 +52,11 @@ bool			isCompilation=false;
 
 GtkWindow*		window;
 
+const char		*musicDb="gnudb.gnudb.org";
+int				dbPort=8880;
+
+char			*prefixFolder=strdup("/tmp");
+bool			cliPrefix=false;
 char			*flacFolder=NULL;
 char			*mp4Folder=NULL;
 char			*mp3Folder=NULL;

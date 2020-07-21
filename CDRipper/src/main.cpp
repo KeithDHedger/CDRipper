@@ -28,6 +28,9 @@ struct option long_options[] =
 		{"artist",1,0,'a'},
 		{"album",1,0,'A'},
 		{"rip",0,0,'r'},
+		{"prefix",1,0,'x'},
+		{"database",1,0,'d'},
+		{"port",1,0,'P'},
 		{"version",0,0,'v'},
 		{"help",0,0,'?'},
 		{0, 0, 0, 0}
@@ -40,7 +43,10 @@ printf("Usage: getcoverart [OPTION]\n"
 	" -p, --print	Print Details\n"
 	" -a, --artist	Force Artist Name\n"
 	" -A, --album	Force Album Name\n"
-	" -r, --rip	Rip disc\n"
+	" -r, --rip	Rip Disc\n"
+	" -x, --prefix	Prefix For Music Location ( default='/tmp' )\n"
+	" -d, --database	FreeDB URL ( default='gnudb.gnudb.org' )\n"
+	" -P, --port	Port For FreeDB ( default='8880' )\n"
 	" -v, --version	output version information and exit\n"
 	" -h, -?, --help	print this help\n\n"
 	"Report bugs to kdhedger@yahoo.co.uk\n"
@@ -55,9 +61,9 @@ void init (void)
 	char	name[256];
 	char	strarg[256];
 
-	flacFolder=(char*)FLACDIR;
-	mp4Folder=(char*)MP4DIR;
-	mp3Folder=(char*)MP3DIR;
+	asprintf(&flacFolder,"%s/%s",prefixFolder,FLACDIR);
+	asprintf(&mp4Folder,"%s/%s",prefixFolder,MP4DIR);
+	asprintf(&mp3Folder,"%s/%s",prefixFolder,MP3DIR);
 
 	asprintf(&filename,"%s/.config/cdripper.rc",getenv("HOME"));
 	fd=fopen(filename,"r");
@@ -68,20 +74,32 @@ void init (void)
 					fgets(buffer,1024,fd);
 					sscanf(buffer,"%s %s",(char*)&name,(char*)&strarg);
 
+					if(strcasecmp(name,"prefixdir")==0)
+						{
+							if(cliPrefix==true)
+								continue;
+							free(prefixFolder);
+							sscanf(buffer,"%*s %" VALIDFILENAMECHARS "s",(char*)&strarg);
+							asprintf(&prefixFolder,"%s",strarg);
+						}
+
 					if(strcasecmp(name,"flacdir")==0)
 						{
+							free(flacFolder);
 							sscanf(buffer,"%*s %" VALIDFILENAMECHARS "s",(char*)&strarg);
-							asprintf(&flacFolder,"%s",strarg);
+							asprintf(&flacFolder,"%s/%s",prefixFolder,strarg);
 						}
 					if(strcasecmp(name,"mp4dir")==0)
 						{
+							free(mp4Folder);
 							sscanf(buffer,"%*s %" VALIDFILENAMECHARS "s",(char*)&strarg);
-							asprintf(&mp4Folder,"%s",strarg);
+							asprintf(&mp4Folder,"%s/%s",prefixFolder,strarg);
 						}
 					if(strcasecmp(name,"mp3dir")==0)
 						{
+							free(mp3Folder);
 							sscanf(buffer,"%*s %" VALIDFILENAMECHARS "s",(char*)&strarg);
-							asprintf(&mp3Folder,"%s",strarg);
+							asprintf(&mp3Folder,"%s/%s",prefixFolder,strarg);
 						}
 				}
 			fclose(fd);
@@ -103,12 +121,10 @@ int main(int argc, char **argv)
 			return(1);
 		}
 
-	init();
-
 	while (1)
 		{
 			int option_index=0;
-			c=getopt_long(argc,argv,"v?hrpra:A:",long_options,&option_index);
+			c=getopt_long(argc,argv,"v?hrprx:d:P:a:A:",long_options,&option_index);
 			if (c==-1)
 				break;
 
@@ -117,9 +133,25 @@ int main(int argc, char **argv)
 					case 'a':
 						artist=optarg;
 						break;
+
 					case 'A':
 						album=optarg;
 						break;
+
+					case 'd':
+						musicDb=optarg;
+						break;
+
+					case 'P':
+						dbPort=atoi(optarg);
+						break;
+
+					case 'x':
+						cliPrefix=true;
+						free(prefixFolder);
+						prefixFolder=strdup(optarg);
+						break;
+
 					case 'p':
 						print=true;
 						break;
@@ -154,6 +186,8 @@ int main(int argc, char **argv)
 			printf("\n");
 		}
 
+	init();
+
 	unknownTrackCnt=0;
 	disc=readDisc();
 	if(disc==NULL)
@@ -166,7 +200,6 @@ int main(int argc, char **argv)
 	if (discMatches==NULL)
 		{
 			printf("No matches found for disc :(\n");
-//			return(1);
 		}
 	cddb_disc_destroy(disc);
 
@@ -190,6 +223,10 @@ int main(int argc, char **argv)
 	asprintf(&command,"rm -r %s",tmpDir);
 	system(command);
 	g_free(command);
+	free(prefixFolder);
+	free(flacFolder);
+	free(mp4Folder);
+	free(mp3Folder);
 	return 0;
 }
 

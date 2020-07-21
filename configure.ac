@@ -42,5 +42,32 @@ PKG_CHECK_MODULES(GDK, $GDK_MODULES)
 AC_SUBST(GDK_CFLAGS)
 AC_SUBST(GDK_LIBS)
 
+AC_CHECK_PROG(KUTE, kute ,true,false)
+if test $KUTE = false; then
+	AC_MSG_NOTICE([No kute program found!])
+	AC_MSG_NOTICE([You can download it from here:])
+	AC_MSG_ERROR([https://github.com/KeithDHedger/Kute])
+fi
+
+AC_CHECK_PROG(CDDA2WAV, cdda2wav ,true,false)
+if test $CDDA2WAV = false; then
+	AC_MSG_ERROR([No cdda2wav program found!])
+fi
+
+AC_CHECK_PROG(FLAC, flac ,true,false)
+if test $FLAC = false; then
+	AC_MSG_ERROR([No flac program found!])
+fi
+
+AC_CHECK_PROG(FFMPEG, ffmpeg ,true,false)
+if test $FFMPEG = false; then
+	AC_MSG_ERROR([No ffmpeg program found!])
+fi
+
+AC_CHECK_PROG(CURL, curl ,true,false)
+if test $CURL = false; then
+	AC_MSG_ERROR([No curl program found!])
+fi
+
 AC_OUTPUT(Makefile CDRipper/app/Makefile)
 
