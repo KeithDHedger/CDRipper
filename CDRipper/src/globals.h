@@ -67,11 +67,11 @@ extern char			*tmpDir;
 
 extern GtkWindow*	window;
 
-extern const char	*musicDb;
+extern char			*musicDb;
 extern int			dbPort;
 
 extern char			*prefixFolder;
-extern bool			cliPrefix;
+//extern bool			cliPrefix;
 extern char			*flacFolder;
 extern char			*mp4Folder;
 extern char			*mp3Folder;

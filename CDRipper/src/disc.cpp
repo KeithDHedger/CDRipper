@@ -217,21 +217,21 @@ void getAlbumArt()
 
 	if(ripFlac==true)
 		{
-			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",flacFolder,artist,album);
+			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/%s/folder.jpg\"",prefixFolder,flacFolder,artist,album);
 			system(command);
 			g_free(command);
 		}
 
 	if(ripMp4==true)
 		{
-			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",mp4Folder,artist,album);
+			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/%s/folder.jpg\"",prefixFolder,mp4Folder,artist,album);
 			system(command);
 			g_free(command);
 		}
 
 	if(ripMp3==true)
 		{
-			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/folder.jpg\"",mp3Folder,artist,album);
+			asprintf(&command,"cp /tmp/folder.jpg \"%s/%s/%s/%s/folder.jpg\"",prefixFolder,mp3Folder,artist,album);
 			system(command);
 			g_free(command);
 		}
@@ -319,7 +319,7 @@ gpointer doTheRip(gpointer data)
 
 					if(ripFlac==true)
 						{
-							asprintf(&command,"%s/%s/%s",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+							asprintf(&command,"%s/%s/%s/%s",prefixFolder,flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 							g_mkdir_with_parents(command,493);
 							g_free(command);
 
@@ -327,13 +327,13 @@ gpointer doTheRip(gpointer data)
 							asprintf(&command,"%s audio.flac",tagdata);
 							system(command);
 							g_free(command);
-							asprintf(&command,"mv audio.flac \"%s/%s/%s/%s%2.2i %s.flac\"",flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+							asprintf(&command,"mv audio.flac \"%s/%s/%s/%s/%s%2.2i %s.flac\"",prefixFolder,flacFolder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 							system(command);
 							g_free(command);
 						}
 					if(ripMp4==true)
 						{
-							asprintf(&command,"%s/%s/%s",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+							asprintf(&command,"%s/%s/%s/%s",prefixFolder,mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 							g_mkdir_with_parents(command,493);
 							g_free(command);
 
@@ -341,13 +341,13 @@ gpointer doTheRip(gpointer data)
 							asprintf(&command,"%s audio.m4a",tagdata);
 							system(command);
 							g_free(command);
-							asprintf(&command,"mv audio.m4a \"%s/%s/%s/%s%2.2i %s.m4a\"",mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+							asprintf(&command,"mv audio.m4a \"%s/%s/%s/%s/%s%2.2i %s.m4a\"",prefixFolder,mp4Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 							system(command);
 							g_free(command);
 						}
 					if((ripMp3==true))
 						{
-							asprintf(&command,"%s/%s/%s",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
+							asprintf(&command,"%s/%s/%s/%s",prefixFolder,mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry));
 							g_mkdir_with_parents(command,493);
 							g_free(command);
 
@@ -355,7 +355,7 @@ gpointer doTheRip(gpointer data)
 							asprintf(&command,"%s audio.mp3",tagdata);
 							system(command);
 							g_free(command);
-							asprintf(&command,"mv audio.mp3 \"%s/%s/%s/%s%2.2i %s.mp3\"",mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
+							asprintf(&command,"mv audio.mp3 \"%s/%s/%s/%s/%s%2.2i %s.mp3\"",prefixFolder,mp3Folder,artistfolder,gtk_entry_get_text((GtkEntry*)albumEntry),cdnum,i,filename);
 							system(command);
 							g_free(command);
 						}
