@@ -29,6 +29,8 @@ GtkWidget*	progressWindow;
 char		ripName[1024];
 GtkWidget*	label;
 bool		labelChanged=false;
+GtkWidget	*drop;
+char		text[4096]={0,};
 
 cddb_disc_t* readDisc(void)
 {
@@ -38,6 +40,7 @@ cddb_disc_t* readDisc(void)
 	char trackname[9];
 	struct cdrom_tochdr th;
 	struct cdrom_tocentry te;
+	char	*filename;
 
 	cddb_disc_t* disc=NULL;
 	cddb_track_t* track=NULL;
@@ -93,6 +96,9 @@ cddb_disc_t* readDisc(void)
 		}
 
 	close(fd);
+	asprintf(&filename,"rm -rf %s/.cddbslave",getenv("HOME"));
+	system(filename);
+	free(filename);
 
 	return(disc);
 }
@@ -475,7 +481,6 @@ void doDetails(cddb_disc_t* disc)
 		album=(char*)cddb_disc_get_title(disc);
 
 	GtkWidget*		hbox;
-
 	GtkWidget*		compilation;
 
 	if(detailsVBox!=NULL)
@@ -561,7 +566,6 @@ void doDetails(cddb_disc_t* disc)
 	gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
 	gtk_entry_set_text((GtkEntry*)cdEntry,"1");
 	g_signal_connect(G_OBJECT(compilation),"toggled",G_CALLBACK(doCompiliation),NULL);
-
 	gtk_box_pack_start(GTK_BOX(detailsVBox),gtk_hseparator_new(),false,true,4);
 
 //rip all
@@ -647,6 +651,13 @@ void doDetails(cddb_disc_t* disc)
 	gtk_scrolled_window_add_with_viewport((GtkScrolledWindow*)windowScrollbox,detailsVBox);
 }
 
+void redoDetails(GtkWidget* widget,gpointer data)
+{
+	artist=NULL;
+	album=NULL;
+	doDetails((cddb_disc_t *)g_list_nth_data(discMatches,gtk_combo_box_get_active((GtkComboBox*)widget)));
+}
+
 void freeData(gpointer data)
 {
 	cddb_disc_destroy((cddb_disc_t*)data);
@@ -679,6 +690,20 @@ void reScanCD(GtkWidget* widget,gpointer data)
 		tempdisc=NULL;
 
 	cddb_disc_destroy(thedisc);
+
+	if(drop!=NULL)
+		{
+			for(int j=g_list_length(discMatches)-1;j>-1;j--)
+				gtk_combo_box_text_remove ((GtkComboBoxText *)drop,j);
+
+			for(int j=0;j<g_list_length(discMatches);j++)
+				{
+					sprintf(text,"%s - %s",(char*)cddb_disc_get_artist((cddb_disc_t *)g_list_nth_data(discMatches,j)),(char*)cddb_disc_get_title((cddb_disc_t *)g_list_nth_data(discMatches,j)));
+					gtk_combo_box_text_append_text((GtkComboBoxText*)drop,text);
+				}
+			gtk_combo_box_set_active ((GtkComboBox*)drop,0);
+		}
+
 	doDetails(tempdisc);
 }
 
@@ -712,6 +737,18 @@ void showCDDetails(cddb_disc_t* disc)
 	g_signal_connect(G_OBJECT(window),"delete-event",G_CALLBACK(doNothing),NULL);
 
 	mainWindowVBox=gtk_vbox_new(false,0);
+
+	drop=gtk_combo_box_text_new();
+	for(int j=0;j<g_list_length(discMatches);j++)
+		{
+			sprintf(text,"%s - %s",(char*)cddb_disc_get_artist((cddb_disc_t *)g_list_nth_data(discMatches,j)),(char*)cddb_disc_get_title((cddb_disc_t *)g_list_nth_data(discMatches,j)));
+			gtk_combo_box_text_append_text((GtkComboBoxText*)drop,text);
+		}
+	gtk_combo_box_set_active ((GtkComboBox*)drop,0);
+	g_signal_connect(G_OBJECT(drop),"changed",G_CALLBACK(redoDetails),NULL);
+
+	gtk_box_pack_start(GTK_BOX(mainWindowVBox),drop,false,false,0);
+
 
 	gtk_container_add(GTK_CONTAINER(window),mainWindowVBox);
 

@@ -63,8 +63,6 @@ void init (void)
 	char	name[256];
 	char	strarg[256];
 	const char	*tmpprefix=prefixFolder;
-
-	//if(doSave==true)
 	
 	asprintf(&flacFolder,"%s",FLACDIR);
 	asprintf(&mp4Folder,"%s",MP4DIR);
@@ -262,7 +260,14 @@ int main(int argc, char **argv)
 		tempdisc=NULL;
 
 	if(print==true)
-		printDetails(tempdisc);
+		{
+		printf("Number of items found==%i\n",g_list_length(discMatches));
+		for(int j=0;j<g_list_length(discMatches);j++)
+			{
+				tempdisc=(cddb_disc_t *)g_list_nth_data (discMatches,j);
+				printDetails(tempdisc);
+			}
+		}
 	else
 		showCDDetails(tempdisc);
 
