@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 	char			*command;
 	cddb_disc_t*	disc=NULL;
 	cddb_disc_t*	tempdisc;
-	bool dosave=false;
+	bool			dosave=false;
 
 	tmpDir=g_dir_make_tmp("CDRipXXXXXX",NULL);
 	if(tmpDir==NULL)
@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 			return(1);
 		}
 
-	discMatches=lookupDisc(disc);
+	discMatches=lookupDisc(disc,false);
 	if (discMatches==NULL)
 		{
 			printf("No matches found for disc :(\n");

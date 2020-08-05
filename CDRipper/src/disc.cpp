@@ -96,35 +96,33 @@ cddb_disc_t* readDisc(void)
 		}
 
 	close(fd);
-	asprintf(&filename,"rm -rf %s/.cddbslave",getenv("HOME"));
-	system(filename);
-	free(filename);
 
 	return(disc);
 }
 
-GList* lookupDisc(cddb_disc_t* disc)
+GList* lookupDisc(cddb_disc_t* ldisc,bool disablecache)
 {
 	GList*			matches=NULL;
-	cddb_conn_t*	connection;
+	cddb_conn_t*	connection=NULL;
 	int				numMatches=-1;
 
 	// set up the connection to the cddb server
 	connection=cddb_new();
 	if (connection==NULL)
 		printf("cddb_new() failed. Out of memory?");
-    
+	if(disablecache==true)
+		cddb_cache_disable(connection); 
 //	cddb_set_server_name(connection,"freedb.freedb.org");
 //	cddb_set_server_name(connection,"freedb.musicbrainz.org");
 	cddb_set_server_name(connection,musicDb);
 	cddb_set_server_port(connection,dbPort);
 
-	numMatches=cddb_query(connection,disc);
-	discID=cddb_disc_get_discid(disc);
+	numMatches=cddb_query(connection,ldisc);
+	discID=cddb_disc_get_discid(ldisc);
 	// make a list of all the matches
 	for (int i=0;i<numMatches;i++)
 		{
-			cddb_disc_t* possible_match=cddb_disc_clone(disc);
+			cddb_disc_t* possible_match=cddb_disc_clone(ldisc);
 			if (!cddb_read(connection,possible_match))
 				{
 					cddb_error_print(cddb_errno(connection));
@@ -135,13 +133,13 @@ GList* lookupDisc(cddb_disc_t* disc)
 		// move to next match
 		if (i<numMatches-1)
 			{
-				if(!cddb_query_next(connection,disc))
+				if(!cddb_query_next(connection,ldisc))
 					printf("Query index out of bounds.");
 			}
 		}
 
 	cddb_destroy(connection);
-    
+
     return matches;
 }
 
@@ -153,7 +151,7 @@ void printDetails(cddb_disc_t* disc)
 			char			*disc_title=(char*)cddb_disc_get_title(disc);
 			char			*disc_genre=(char*)cddb_disc_get_genre(disc);
 			unsigned		disc_year=cddb_disc_get_year(disc);
-			cddb_track_t*	track;
+			cddb_track_t	*track;
 			int				tracknum=1;
 
 			printf("Disc ID - %x\n",discID);
@@ -668,6 +666,9 @@ void reScanCD(GtkWidget* widget,gpointer data)
 	cddb_disc_t*	thedisc=NULL;
 	cddb_disc_t*	tempdisc=NULL;
 
+	for(int j=g_list_length(discMatches)-1;j>-1;j--)
+		gtk_combo_box_text_remove((GtkComboBoxText *)drop,j);
+
 	numTracks=0;
 	isCompilation=false;
 	g_list_free_full(discMatches,freeData);
@@ -683,7 +684,7 @@ void reScanCD(GtkWidget* widget,gpointer data)
 			return;
 		}
 
-	discMatches=lookupDisc(thedisc);
+	discMatches=lookupDisc(thedisc,true);
 	if(discMatches!=NULL)
 		tempdisc=(cddb_disc_t *)discMatches->data;
 	else
@@ -748,7 +749,6 @@ void showCDDetails(cddb_disc_t* disc)
 	g_signal_connect(G_OBJECT(drop),"changed",G_CALLBACK(redoDetails),NULL);
 
 	gtk_box_pack_start(GTK_BOX(mainWindowVBox),drop,false,false,0);
-
 
 	gtk_container_add(GTK_CONTAINER(window),mainWindowVBox);
 

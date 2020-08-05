@@ -20,43 +20,41 @@ const char		*genre=NULL;
 unsigned int	year;
 unsigned int	discID=0;
 
-GtkWidget*		trackName[100];
-GtkWidget*		trackArtist[100];
-GtkWidget*		ripThis[100];
-GtkWidget*		albumEntry;
-GtkWidget*		artistEntry=NULL;
-GtkWidget*		genreEntry;
-GtkWidget*		yearEntry;
-GtkWidget*		cdEntry;
-GtkWidget*		discIDEntry;
+GtkWidget		*trackName[100];
+GtkWidget		*trackArtist[100];
+GtkWidget		*ripThis[100];
+GtkWidget		*albumEntry;
+GtkWidget		*artistEntry=NULL;
+GtkWidget		*genreEntry;
+GtkWidget		*yearEntry;
+GtkWidget		*cdEntry;
+GtkWidget		*discIDEntry;
 
-GtkWidget*		mainWindowVBox;
-GtkWidget*		detailsVBox=NULL;
-GtkWidget*		windowScrollbox;
+GtkWidget		*mainWindowVBox;
+GtkWidget		*detailsVBox=NULL;
+GtkWidget		*windowScrollbox;
 
 bool			print=false;
 bool			download=true;
 const char		*cdrom="/dev/cdrom";
-cddb_disc_t*	disc=NULL;
 int				startTrack;
 int				numTracks;
 bool			ripit=false;
 char			*tmpDir=NULL;
 bool			startSelect=false;
 
-GList*			discMatches=NULL;
+GList			*discMatches=NULL;
 int				unknownTrackCnt=0;
 
 bool			justQuit=false;
 bool			isCompilation=false;
 
-GtkWindow*		window;
+GtkWindow		*window;
 
 char			*musicDb=strdup("gnudb.gnudb.org");
 int				dbPort=8880;
 
 char			*prefixFolder=strdup("/tmp");
-//bool			cliPrefix=false;
 char			*flacFolder=NULL;
 char			*mp4Folder=NULL;
 char			*mp3Folder=NULL;
