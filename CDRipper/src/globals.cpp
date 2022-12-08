@@ -1,11 +1,22 @@
-/******************************************************
-*
-*     ©keithhedger Sun  5 May 18:58:18 BST 2013
-*     kdhedger68713@gmail.com
-*
-*     globals.cpp
-* 
-******************************************************/
+/*
+ *
+ * ©K. D. Hedger. Thu  8 Dec 12:55:11 GMT 2022 keithdhedger@gmail.com
+
+ * This file (globals.cpp) is part of CDRipper.
+
+ * CDRipper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * CDRipper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with CDRipper.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <cddb/cddb.h>
 #include <stdio.h>
@@ -17,8 +28,8 @@
 const char		*album=NULL;
 const char		*artist=NULL;
 const char		*genre=NULL;
-unsigned int	year;
-unsigned int	discID=0;
+unsigned int		year;
+unsigned int		discID=0;
 
 GtkWidget		*trackName[100];
 GtkWidget		*trackArtist[100];
@@ -34,42 +45,42 @@ GtkWidget		*mainWindowVBox;
 GtkWidget		*detailsVBox=NULL;
 GtkWidget		*windowScrollbox;
 
-bool			print=false;
-bool			download=true;
+bool				print=false;
+bool				download=true;
 const char		*cdrom="/dev/cdrom";
 int				startTrack;
 int				numTracks;
-bool			ripit=false;
-char			*tmpDir=NULL;
-bool			startSelect=false;
+bool				ripit=false;
+char				*tmpDir=NULL;
+bool				startSelect=false;
 
 GList			*discMatches=NULL;
 int				unknownTrackCnt=0;
 
-bool			justQuit=false;
-bool			isCompilation=false;
+bool				justQuit=false;
+bool				isCompilation=false;
 
 GtkWindow		*window;
 
-char			*musicDb=strdup("gnudb.gnudb.org");
+char				*musicDb=strdup("gnudb.org");
 int				dbPort=8880;
 
-char			*prefixFolder=strdup("/tmp");
-char			*flacFolder=NULL;
-char			*mp4Folder=NULL;
-char			*mp3Folder=NULL;
+char				*prefixFolder=strdup("/tmp");
+char				*flacFolder=NULL;
+char				*mp4Folder=NULL;
+char				*mp3Folder=NULL;
 
-bool			ripFlac=true;
-bool			ripMp4=false;
-bool			ripMp3=false;
-bool			ripLowQMp3=false;
+bool				ripFlac=true;
+bool				ripMp4=false;
+bool				ripMp3=false;
+bool				ripLowQMp3=false;
 
 //global routines
 //string slicing
 
 char *slice(char *srcstring,int tmpstartchar,int tmpendchar)
 {
-	char	*dest;
+	char		*dest;
 	int		strsize;
 	int		startchar=tmpstartchar;
 	int		endchar=tmpendchar;
@@ -93,8 +104,8 @@ char *sliceBetween(char *srcstring,char *startstr,char *endstr)
 {
 	int		startchar;
 	int		endchar;
-	char	*ptr;
-	char	*dest=NULL;
+	char		*ptr;
+	char		*dest=NULL;
 
 	ptr=strstr(srcstring,startstr);
 	if(ptr==NULL)
@@ -112,7 +123,7 @@ char *sliceBetween(char *srcstring,char *startstr,char *endstr)
 
 char *sliceLen(char *srcstring,int tmpstartchar,int len)
 {
-	char	*dest;
+	char		*dest;
 	int		strsize;
 	int		startchar=tmpstartchar;
 	int		endchar=len;
@@ -135,7 +146,7 @@ char *sliceLen(char *srcstring,int tmpstartchar,int len)
 
 char *sliceStrLen(char *srcstring,char *startstr,int len)
 {
-	char	*ptr;
+	char		*ptr;
 	int		startchar;
 
 	ptr=strstr(srcstring,startstr);
@@ -148,9 +159,9 @@ char *sliceStrLen(char *srcstring,char *startstr,int len)
 
 char *sliceDeleteChar(char *srcstring,char chr)
 {
-	char	*buffer;
-	char	*destptr;
-	char	*retstr=NULL;
+	char		*buffer;
+	char		*destptr;
+	char		*retstr=NULL;
 
 	buffer=(char*)malloc(strlen(srcstring)+1);
 	destptr=buffer;
@@ -172,10 +183,10 @@ char *sliceDeleteChar(char *srcstring,char chr)
 
 char *sliceDeleteRange(char *srcstring,const char *chars)
 {
-	char	*buffer;
-	char	*destptr;
-	char	*retstr=NULL;
-	bool	flag;
+	char		*buffer;
+	char		*destptr;
+	char		*retstr=NULL;
+	bool		flag;
 
 	buffer=(char*)malloc(strlen(srcstring)+1);
 	destptr=buffer;
@@ -185,7 +196,7 @@ char *sliceDeleteRange(char *srcstring,const char *chars)
 			do
 				{
 					flag=false;
-					for(int i=0;i<strlen(chars);i++)
+					for(int i=0; i<strlen(chars); i++)
 						{
 							if((*srcstring)==chars[i])
 								{

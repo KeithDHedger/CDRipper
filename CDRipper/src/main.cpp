@@ -1,8 +1,22 @@
+/*
+ *
+ * ©K. D. Hedger. Thu  8 Dec 12:56:53 GMT 2022 keithdhedger@gmail.com
 
-//Mon 31 Jul 2006 12:30:55 BST 
-//
-//CDRipper
-//
+ * This file (main.cpp) is part of CDRipper.
+
+ * CDRipper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * CDRipper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with CDRipper.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -46,7 +60,7 @@ void printhelp(void)
 	" -A, --album	Force Album Name\n"
 	" -r, --rip	Rip Disc\n"
 	" -x, --prefix	Prefix For Music Location ( default='/tmp' )\n"
-	" -d, --database	FreeDB URL ( default='gnudb.gnudb.org' )\n"
+	" -d, --database	FreeDB URL ( default='gnudb.org' )\n"
 	" -P, --port	Port For FreeDB ( default='8880' )\n"
 	" -s, --save	Save current config to ~/.config/cdripper.rc and exit\n"
 	" -v, --version	output version information and exit\n"
@@ -57,11 +71,11 @@ void printhelp(void)
 
 void init (void)
 {
-	FILE*	fd=NULL;
-	char	*filename;
-	char	buffer[1024];
-	char	name[256];
-	char	strarg[256];
+	FILE			*fd=NULL;
+	char			*filename;
+	char			buffer[1024];
+	char			name[256];
+	char			strarg[256];
 	const char	*tmpprefix=prefixFolder;
 	
 	asprintf(&flacFolder,"%s",FLACDIR);
@@ -79,8 +93,6 @@ void init (void)
 
 					if(strcasecmp(name,"prefixdir")==0)
 						{
-							//if(cliPrefix==true)
-							//	continue;
 							free(prefixFolder);
 							sscanf(buffer,"%*s %" VALIDFILENAMECHARS "s",(char*)&strarg);
 							asprintf(&prefixFolder,"%s",strarg);
@@ -123,10 +135,10 @@ void init (void)
 
 int main(int argc, char **argv)
 {
-	int				c;
+	int			c;
 	char			*command;
-	cddb_disc_t*	disc=NULL;
-	cddb_disc_t*	tempdisc;
+	cddb_disc_t	*disc=NULL;
+	cddb_disc_t	*tempdisc;
 	bool			dosave=false;
 
 	tmpDir=g_dir_make_tmp("CDRipXXXXXX",NULL);
@@ -140,7 +152,7 @@ int main(int argc, char **argv)
 
 	while (1)
 		{
-			int option_index=0;
+			int	option_index=0;
 			c=getopt_long(argc,argv,"v?hrprsx:d:P:a:A:",long_options,&option_index);
 			if (c==-1)
 				break;
@@ -169,7 +181,6 @@ int main(int argc, char **argv)
 						break;
 
 					case 'x':
-						//cliPrefix=true;
 						free(prefixFolder);
 						prefixFolder=strdup(optarg);
 						break;
@@ -208,11 +219,10 @@ int main(int argc, char **argv)
 			printf("\n");
 		}
 
-
 	if(dosave==true)
 		{
-			char	*filename=NULL;
-			FILE	*fd=NULL;
+			char		*filename=NULL;
+			FILE		*fd=NULL;
 
 			asprintf(&filename,"%s/.config/cdripper.rc",getenv("HOME"));
 			fd=fopen(filename,"w");
@@ -227,8 +237,6 @@ int main(int argc, char **argv)
 					fclose(fd);
 				}
 			free(filename);	
-
-			//printf("%s\n%s\n%s\n%s\n",prefixFolder,flacFolder,mp3Folder,mp4Folder);
 			exit(0);
 		}
 

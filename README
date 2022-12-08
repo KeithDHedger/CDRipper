@@ -1,3 +1,9 @@
 # CDRipper
 
-Simple GTK2 based CD ripper, rips to flac, aac and mp3, tagged from gnudb.gnudb.rg.
+Simple GTK2 based CD ripper, rips to flac, aac and mp3, tagged from gnudb.org.
+
+Building, all the usual gtk2 build files, plus libcddb,mp4v2,id3tag,taglib,cdda2wav,flac,curl,glyr for albumart and of course ffmpeg, most of these will already be installed on your system.
+
+Use ./autogen.sh --prefix=/usr
+make
+make install

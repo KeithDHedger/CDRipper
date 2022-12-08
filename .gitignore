@@ -10,11 +10,5 @@ config.h
 Makefile
 aclocal.m4
 *~
-
-
-
-
-
-
-
-
+*.in
+configure

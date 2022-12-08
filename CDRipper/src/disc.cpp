@@ -1,11 +1,22 @@
-/******************************************************
-*
-*     ©keithhedger Sun  5 May 19:03:12 BST 2013
-*     kdhedger68713@gmail.com
-*
-*     disc.cpp
-* 
-******************************************************/
+/*
+ *
+ * ©K. D. Hedger. Thu  8 Dec 12:59:37 GMT 2022 keithdhedger@gmail.com
+
+ * This file (disc.cpp) is part of CDRipper.
+
+ * CDRipper is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * CDRipper is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with CDRipper.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <cddb/cddb.h>
 #include <stdio.h>
@@ -25,27 +36,27 @@
 #include "globals.h"
 #include "config.h"
 
-GtkWidget*	progressWindow;
-char		ripName[1024];
-GtkWidget*	label;
-bool		labelChanged=false;
+GtkWidget	*progressWindow;
+char			ripName[1024];
+GtkWidget	*label;
+bool			labelChanged=false;
 GtkWidget	*drop;
-char		text[4096]={0,};
+char			text[4096]= {0,};
 
 cddb_disc_t* readDisc(void)
 {
-	int fd;
-	int status;
-	int i;
-	char trackname[9];
-	struct cdrom_tochdr th;
-	struct cdrom_tocentry te;
-	char	*filename;
+	int		fd;
+	int		status;
+	int		i;
+	char		trackname[9];
+	struct	cdrom_tochdr th;
+	struct	cdrom_tocentry te;
+	char		*filename;
 
-	cddb_disc_t* disc=NULL;
-	cddb_track_t* track=NULL;
+	cddb_disc_t	*disc=NULL;
+	cddb_track_t	*track=NULL;
 
-    // open the device
+	// open the device
 	fd=open(cdrom,O_RDONLY|O_NONBLOCK);
 	if(fd<0)
 		{
@@ -69,7 +80,7 @@ cddb_disc_t* readDisc(void)
 						printf("cddb_disc_new() failed. Out of memory?");
 
 					te.cdte_format=CDROM_LBA;
-					for (i=th.cdth_trk0;i<=th.cdth_trk1;i++)
+					for (i=th.cdth_trk0; i<=th.cdth_trk1; i++)
 						{
 							te.cdte_track=i;
 							if(ioctl(fd,CDROMREADTOCENTRY,&te)==0)
@@ -80,8 +91,6 @@ cddb_disc_t* readDisc(void)
 
 									cddb_track_set_frame_offset(track,te.cdte_addr.lba+SECONDS_TO_FRAMES(2));
 									snprintf(trackname,9,"Track %d",i);
-									//printf(">>>%p<<<<\n",cddb_track_get_title(track));
-
 									cddb_track_set_title(track,trackname);
 									cddb_track_set_artist(track,"Unknown Artist");
 									cddb_disc_add_track(disc,track);
@@ -100,27 +109,25 @@ cddb_disc_t* readDisc(void)
 	return(disc);
 }
 
-GList* lookupDisc(cddb_disc_t* ldisc,bool disablecache)
+GList* lookupDisc(cddb_disc_t *ldisc,bool disablecache)
 {
-	GList*			matches=NULL;
-	cddb_conn_t*	connection=NULL;
-	int				numMatches=-1;
+	GList		*matches=NULL;
+	cddb_conn_t	*connection=NULL;
+	int			numMatches=-1;
 
 	// set up the connection to the cddb server
 	connection=cddb_new();
 	if (connection==NULL)
 		printf("cddb_new() failed. Out of memory?");
 	if(disablecache==true)
-		cddb_cache_disable(connection); 
+		cddb_cache_disable(connection);
 //	cddb_set_server_name(connection,"freedb.freedb.org");
-//	cddb_set_server_name(connection,"freedb.musicbrainz.org");
-	cddb_set_server_name(connection,musicDb);
 	cddb_set_server_port(connection,dbPort);
 
 	numMatches=cddb_query(connection,ldisc);
 	discID=cddb_disc_get_discid(ldisc);
 	// make a list of all the matches
-	for (int i=0;i<numMatches;i++)
+	for (int i=0; i<numMatches; i++)
 		{
 			cddb_disc_t* possible_match=cddb_disc_clone(ldisc);
 			if (!cddb_read(connection,possible_match))
@@ -129,21 +136,21 @@ GList* lookupDisc(cddb_disc_t* ldisc,bool disablecache)
 					printf("cddb_read() failed.");
 				}
 			matches=g_list_append(matches,possible_match);
-        
-		// move to next match
-		if (i<numMatches-1)
-			{
-				if(!cddb_query_next(connection,ldisc))
-					printf("Query index out of bounds.");
-			}
+
+			// move to next match
+			if (i<numMatches-1)
+				{
+					if(!cddb_query_next(connection,ldisc))
+						printf("Query index out of bounds.");
+				}
 		}
 
 	cddb_destroy(connection);
 
-    return matches;
+	return matches;
 }
 
-void printDetails(cddb_disc_t* disc)
+void printDetails(cddb_disc_t *disc)
 {
 	if(disc!=NULL)
 		{
@@ -171,11 +178,11 @@ void printDetails(cddb_disc_t* disc)
 			printf("Year - %i\n",disc_year);
 
 			for (track=cddb_disc_get_track_first(disc); track != NULL; track=cddb_disc_get_track_next(disc))
-		        {
+				{
 					printf("Track %2.2i - %s\n",tracknum,cddb_track_get_title(track));
 					printf("Track Artist - %s\n",cddb_track_get_artist(track));
-		  			tracknum++;
-		        }
+					tracknum++;
+				}
 		}
 	else
 		{
@@ -184,7 +191,7 @@ void printDetails(cddb_disc_t* disc)
 			if(album!=NULL)
 				printf("Artist - %s\n",album);
 
-			for(int i=1;i<=unknownTrackCnt;i++)
+			for(int i=1; i<=unknownTrackCnt; i++)
 				{
 					printf("Track %2.2i - %s\n",i,"Unknown Track");
 				}
@@ -194,7 +201,7 @@ void printDetails(cddb_disc_t* disc)
 void getAlbumArt()
 {
 	char			*command;
-	FILE*			fp=NULL;
+	FILE*		fp=NULL;
 	GString*		buffer=g_string_new(NULL);;
 	char			line[1024];
 	char			*urlmb=NULL;
@@ -203,7 +210,7 @@ void getAlbumArt()
 	char			*flacimage=NULL;
 	char			*mp4image=NULL;
 	char			*mp3image=NULL;
-	const char		*artistfolder=NULL;
+	const char	*artistfolder=NULL;
 	char			*newart=NULL;
 
 	album=gtk_entry_get_text((GtkEntry*)albumEntry);
@@ -214,8 +221,9 @@ void getAlbumArt()
 	else
 		artistfolder=artist;
 
-//	asprintf(&command,"glyrc cover --artist \"%s\" --album \"%s\" -F jpeg --write '/tmp/folder.jpg' &>/dev/null",artist,album);
-	asprintf(&command,"curl $(wget --user-agent='%s' --no-netrc --random-wait --tries=4 --waitretry=1 \"https://www.discogs.com/search/?q=%%22%s%%22+%%22%s%%22&type=all\" -O - 2>&1|cat -|grep -i jpg|sed -n 's@<img data-src=\"\\(.*\\)\\.jpg.*\"@\\1.jpg@p')|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",USERAGENT,artist,album);
+//TODO//
+	asprintf(&command,"glyrc cover -a \"%s\" -b \"%s\" --write stdout 2>/dev/null|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",artist,album);
+	//asprintf(&command,"curl $(wget --user-agent='%s' --no-netrc --random-wait --tries=4 --waitretry=1 \"https://www.discogs.com/search/?q=%%22%s%%22+%%22%s%%22&type=all\" -O - 2>&1|cat -|grep -i jpg|sed -n 's@<img data-src=\"\\(.*\\)\\.jpg.*\"@\\1.jpg@p')|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",USERAGENT,artist,album);
 	system(command);
 	g_free(command);
 
@@ -244,12 +252,12 @@ void getAlbumArt()
 
 gboolean doneRipping(gpointer data)
 {
-    GtkWidget *dialog;
+	GtkWidget	*dialog;
 
-    g_source_remove(GPOINTER_TO_INT(g_object_get_data((GObject*)data, "source_id")));
-    gtk_widget_destroy(GTK_WIDGET(data));
+	g_source_remove(GPOINTER_TO_INT(g_object_get_data((GObject*)data, "source_id")));
+	gtk_widget_destroy(GTK_WIDGET(data));
 
-    return false;
+	return false;
 }
 
 gboolean updateBarTimer(gpointer data)
@@ -271,14 +279,14 @@ gboolean updateBarTimer(gpointer data)
 gpointer doTheRip(gpointer data)
 {
 	char			*command;
-	FILE*			fp;
-	cddb_disc_t*	disc=(cddb_disc_t*)data;
+	FILE*		fp;
+	cddb_disc_t	*disc=(cddb_disc_t*)data;
 	char			*filename=NULL;
 	char			*cdstr=g_strdup(gtk_entry_get_text((GtkEntry*)cdEntry));
 	char			*cdnum=NULL;
 	char			*tagdata;
-	const char		*artistfolder;
-	const char		*tagartist;
+	const char	*artistfolder;
+	const char	*tagartist;
 
 	if(isCompilation==true)
 		artistfolder=COMPILATIONARTIST;
@@ -290,7 +298,7 @@ gpointer doTheRip(gpointer data)
 	else
 		asprintf(&cdnum,"%s","");
 
-	for (int i=1;i<=numTracks;i++)
+	for (int i=1; i<=numTracks; i++)
 		{
 			g_chdir(tmpDir);
 			if(gtk_toggle_button_get_active((GtkToggleButton*)ripThis[i])==true)
@@ -308,16 +316,16 @@ gpointer doTheRip(gpointer data)
 						tagartist=gtk_entry_get_text((GtkEntry*)artistEntry);
 
 					asprintf(&tagdata,"kute --artist=\"%s\" --album=\"%s\" --title=\"%s\" --track=%i --total-tracks=%i --year=\"%s\" --genre=\"%s\" --comment=\"Ripped and tagged by K.D.Hedger\" --cd=\"%s\" --discid=\"%s\""
-					,gtk_entry_get_text((GtkEntry*)trackArtist[i])
-					,gtk_entry_get_text((GtkEntry*)albumEntry)
-					,gtk_entry_get_text((GtkEntry*)trackName[i])
-					,i
-					,numTracks
-					,gtk_entry_get_text((GtkEntry*)yearEntry)
-					,gtk_entry_get_text((GtkEntry*)genreEntry)
-					,cdstr
-					,gtk_entry_get_text((GtkEntry*)discIDEntry)
-					);
+					         ,gtk_entry_get_text((GtkEntry*)trackArtist[i])
+					         ,gtk_entry_get_text((GtkEntry*)albumEntry)
+					         ,gtk_entry_get_text((GtkEntry*)trackName[i])
+					         ,i
+					         ,numTracks
+					         ,gtk_entry_get_text((GtkEntry*)yearEntry)
+					         ,gtk_entry_get_text((GtkEntry*)genreEntry)
+					         ,cdstr
+					         ,gtk_entry_get_text((GtkEntry*)discIDEntry)
+					        );
 
 					filename=sliceDeleteRange((char*)gtk_entry_get_text((GtkEntry*)trackName[i])," :/'&^%$!{}@;?.");
 
@@ -377,11 +385,11 @@ gpointer doTheRip(gpointer data)
 	return(NULL);
 }
 
-void ripTracks(GtkWidget* widg,gpointer data)
-{	
-	GtkWidget*	widget;
-	GtkWidget*	vbox;
-    guint		sid;
+void ripTracks(GtkWidget *widg,gpointer data)
+{
+	GtkWidget	*widget;
+	GtkWidget	*vbox;
+	guint		sid;
 
 	/* create the modal window which warns the user to wait */
 	progressWindow=gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -414,29 +422,29 @@ void ripTracks(GtkWidget* widg,gpointer data)
 #endif
 }
 
-void doShutdown(GtkWidget* widget,gpointer data)
+void doShutdown(GtkWidget *widget,gpointer data)
 {
 	justQuit=(bool)data;
 	gtk_main_quit();
 }
 
-void doNothing(GtkWidget* widget,gpointer data)
+void doNothing(GtkWidget *widget,gpointer data)
 {
 	printf("Use A Button\n");
 }
 
 
-void doSensitive(GtkWidget* widget,gpointer data)
+void doSensitive(GtkWidget *widget,gpointer data)
 {
-	bool	sens=gtk_toggle_button_get_active((GtkToggleButton*)ripThis[(long)data]);
+	bool		sens=gtk_toggle_button_get_active((GtkToggleButton*)ripThis[(long)data]);
 
 	gtk_widget_set_sensitive(trackName[(long)data],sens);
 	gtk_widget_set_sensitive(trackArtist[(long)data],sens);
 }
 
-void doCompiliation(GtkWidget* widget,gpointer data)
+void doCompiliation(GtkWidget *widget,gpointer data)
 {
-	bool	sens=gtk_toggle_button_get_active((GtkToggleButton*)widget);
+	bool		sens=gtk_toggle_button_get_active((GtkToggleButton*)widget);
 
 	gtk_widget_set_sensitive(artistEntry,!sens);
 	isCompilation=sens;
@@ -451,23 +459,23 @@ void doCompiliation(GtkWidget* widget,gpointer data)
 		}
 }
 
-void doSelectAll(GtkWidget* widget,gpointer data)
+void doSelectAll(GtkWidget *widget,gpointer data)
 {
-	bool	sens=gtk_toggle_button_get_active((GtkToggleButton*)widget);
+	bool		sens=gtk_toggle_button_get_active((GtkToggleButton*)widget);
 
-	for(int i=1;i<=numTracks;i++)
+	for(int i=1; i<=numTracks; i++)
 		gtk_toggle_button_set_active((GtkToggleButton*)ripThis[i],sens);
 }
 
-void doDetails(cddb_disc_t* disc)
+void doDetails(cddb_disc_t *disc)
 {
-	char			*disc_artist=(char*)cddb_disc_get_artist(disc);
-	char			*disc_title=(char*)cddb_disc_get_title(disc);
-	char			*disc_genre=(char*)cddb_disc_get_genre(disc);
-	unsigned		disc_year=cddb_disc_get_year(disc);
-	cddb_track_t*	track;
+	char				*disc_artist=(char*)cddb_disc_get_artist(disc);
+	char				*disc_title=(char*)cddb_disc_get_title(disc);
+	char				*disc_genre=(char*)cddb_disc_get_genre(disc);
+	unsigned			disc_year=cddb_disc_get_year(disc);
+	cddb_track_t		*track;
 	int				tracknum=1;
-	char			*tmpstr;
+	char				*tmpstr;
 
 	if(artist!=NULL)
 		disc_artist=(char*)artist;
@@ -478,8 +486,8 @@ void doDetails(cddb_disc_t* disc)
 	else
 		album=(char*)cddb_disc_get_title(disc);
 
-	GtkWidget*		hbox;
-	GtkWidget*		compilation;
+	GtkWidget		*hbox;
+	GtkWidget		*compilation;
 
 	if(detailsVBox!=NULL)
 		gtk_widget_destroy(detailsVBox);
@@ -522,7 +530,7 @@ void doDetails(cddb_disc_t* disc)
 			genre=disc_genre;
 			gtk_entry_set_text((GtkEntry*)genreEntry,disc_genre);
 		}
-			
+
 //year
 	hbox=gtk_hbox_new(false,0);
 	gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Year:		"),false,false,0);
@@ -608,12 +616,12 @@ void doDetails(cddb_disc_t* disc)
 					g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)(long)tracknum);
 
 					gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
-		  			tracknum++;
+					tracknum++;
 				}
 		}
 	else
 		{
-			for(int i=1;i<=unknownTrackCnt;i++)
+			for(int i=1; i<=unknownTrackCnt; i++)
 				{
 					hbox=gtk_hbox_new(false,0);
 					gtk_box_pack_start(GTK_BOX(hbox),gtk_label_new("Track Artist:	"),false,false,0);
@@ -641,7 +649,7 @@ void doDetails(cddb_disc_t* disc)
 					g_signal_connect(G_OBJECT(ripThis[tracknum]),"toggled",G_CALLBACK(doSensitive),(void*)(long)tracknum);
 
 					gtk_box_pack_start(GTK_BOX(detailsVBox),hbox,false,true,0);
-		  			tracknum++;
+					tracknum++;
 				}
 		}
 
@@ -649,7 +657,7 @@ void doDetails(cddb_disc_t* disc)
 	gtk_scrolled_window_add_with_viewport((GtkScrolledWindow*)windowScrollbox,detailsVBox);
 }
 
-void redoDetails(GtkWidget* widget,gpointer data)
+void redoDetails(GtkWidget *widget,gpointer data)
 {
 	artist=NULL;
 	album=NULL;
@@ -661,12 +669,12 @@ void freeData(gpointer data)
 	cddb_disc_destroy((cddb_disc_t*)data);
 }
 
-void reScanCD(GtkWidget* widget,gpointer data)
+void reScanCD(GtkWidget *widget,gpointer data)
 {
 	cddb_disc_t*	thedisc=NULL;
 	cddb_disc_t*	tempdisc=NULL;
 
-	for(int j=g_list_length(discMatches)-1;j>-1;j--)
+	for(int j=g_list_length(discMatches)-1; j>-1; j--)
 		gtk_combo_box_text_remove((GtkComboBoxText *)drop,j);
 
 	numTracks=0;
@@ -694,10 +702,10 @@ void reScanCD(GtkWidget* widget,gpointer data)
 
 	if(drop!=NULL)
 		{
-			for(int j=g_list_length(discMatches)-1;j>-1;j--)
+			for(int j=g_list_length(discMatches)-1; j>-1; j--)
 				gtk_combo_box_text_remove ((GtkComboBoxText *)drop,j);
 
-			for(int j=0;j<g_list_length(discMatches);j++)
+			for(int j=0; j<g_list_length(discMatches); j++)
 				{
 					sprintf(text,"%s - %s",(char*)cddb_disc_get_artist((cddb_disc_t *)g_list_nth_data(discMatches,j)),(char*)cddb_disc_get_title((cddb_disc_t *)g_list_nth_data(discMatches,j)));
 					gtk_combo_box_text_append_text((GtkComboBoxText*)drop,text);
@@ -708,10 +716,10 @@ void reScanCD(GtkWidget* widget,gpointer data)
 	doDetails(tempdisc);
 }
 
-void doRipOptions(GtkWidget* widget,gpointer data)
+void doRipOptions(GtkWidget *widget,gpointer data)
 {
 	int		what=(int)(long)data;
-	bool	value=gtk_toggle_button_get_active((GtkToggleButton*)widget);
+	bool		value=gtk_toggle_button_get_active((GtkToggleButton*)widget);
 
 	switch (what)
 		{
@@ -727,10 +735,10 @@ void doRipOptions(GtkWidget* widget,gpointer data)
 		}
 }
 
-void showCDDetails(cddb_disc_t* disc)
+void showCDDetails(cddb_disc_t *disc)
 {
-	GtkWidget*		button;
-	GtkWidget*		hbox;
+	GtkWidget	*button;
+	GtkWidget	*hbox;
 
 	window=(GtkWindow*)gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(window,APPNAME);
@@ -740,7 +748,7 @@ void showCDDetails(cddb_disc_t* disc)
 	mainWindowVBox=gtk_vbox_new(false,0);
 
 	drop=gtk_combo_box_text_new();
-	for(int j=0;j<g_list_length(discMatches);j++)
+	for(int j=0; j<g_list_length(discMatches); j++)
 		{
 			sprintf(text,"%s - %s",(char*)cddb_disc_get_artist((cddb_disc_t *)g_list_nth_data(discMatches,j)),(char*)cddb_disc_get_title((cddb_disc_t *)g_list_nth_data(discMatches,j)));
 			gtk_combo_box_text_append_text((GtkComboBoxText*)drop,text);
