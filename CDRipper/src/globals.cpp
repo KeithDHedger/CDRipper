@@ -175,6 +175,7 @@ char *sliceDeleteChar(char *srcstring,char chr)
 			else
 				*destptr++=*srcstring++;
 		}
+
 	*destptr=0;
 	asprintf(&retstr,"%s",buffer);
 	g_free(buffer);
