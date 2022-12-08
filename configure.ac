@@ -1,6 +1,6 @@
 #
 #
-AC_INIT([CDRipper],[0.0],[PROJ],[CDRipper])
+AC_INIT([CDRipper],[0.5.0],[PROJ],[CDRipper])
 
 AC_CONFIG_HEADER([config.h])
 AC_PROG_CXX

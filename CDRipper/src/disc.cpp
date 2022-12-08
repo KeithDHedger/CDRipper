@@ -121,8 +121,8 @@ GList* lookupDisc(cddb_disc_t *ldisc,bool disablecache)
 		printf("cddb_new() failed. Out of memory?");
 	if(disablecache==true)
 		cddb_cache_disable(connection);
-//	cddb_set_server_name(connection,"freedb.freedb.org");
 	cddb_set_server_port(connection,dbPort);
+	cddb_set_server_name(connection,musicDb);
 
 	numMatches=cddb_query(connection,ldisc);
 	discID=cddb_disc_get_discid(ldisc);

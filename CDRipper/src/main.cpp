@@ -33,7 +33,7 @@
 #include "globals.h"
 #include "disc.h"
 
-#define VERSION "0.0.4"
+#define VERSION "0.5.0"
 #define UNKNOWNARG -100
 
 struct	option long_options[] =
@@ -53,8 +53,7 @@ struct	option long_options[] =
 
 void printhelp(void)
 {
-	printf("Usage: getcoverart [OPTION]\n"
-	"A CLI application\n"
+	printf("Usage: cdripper [OPTION]\n"
 	" -p, --print	Print Details\n"
 	" -a, --artist	Force Artist Name\n"
 	" -A, --album	Force Album Name\n"
@@ -65,7 +64,7 @@ void printhelp(void)
 	" -s, --save	Save current config to ~/.config/cdripper.rc and exit\n"
 	" -v, --version	output version information and exit\n"
 	" -h, -?, --help	print this help\n\n"
-	"Report bugs to kdhedger@yahoo.co.uk\n"
+	"Report bugs to keithdhedger@gmail.com\n"
 	);
 }
 
@@ -194,7 +193,7 @@ int main(int argc, char **argv)
 						break;
 
 					case 'v':
-						printf("getcoverart %s\n",VERSION);
+						printf("CDRipper %s\n",VERSION);
 						return 0;
 						break;
 
