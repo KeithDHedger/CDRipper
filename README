@@ -7,3 +7,6 @@ Building, all the usual gtk2 build files, plus libcddb,mp4v2,id3tag,taglib,cdda2
 Use ./autogen.sh --prefix=/usr
 make
 make install
+
+BUGS etc.
+kdhedger68713@gmail.com
