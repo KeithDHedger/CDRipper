@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=CDRipper
 Comment=
-Terminal=false
+Terminal=true
 Type=Application
 Categories=AudioVideo;Audio;
 Name=CDRipper

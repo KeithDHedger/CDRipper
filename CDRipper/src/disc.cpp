@@ -222,8 +222,9 @@ void getAlbumArt()
 		artistfolder=artist;
 
 //TODO//
-	asprintf(&command,"glyrc cover -a \"%s\" -b \"%s\" --write stdout 2>/dev/null|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",artist,album);
+	asprintf(&command,"glyrc cover -a \"%s\" -b \"%s\" -m 2 --write stdout 2>/dev/null|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",artist,album);
 	//asprintf(&command,"curl $(wget --user-agent='%s' --no-netrc --random-wait --tries=4 --waitretry=1 \"https://www.discogs.com/search/?q=%%22%s%%22+%%22%s%%22&type=all\" -O - 2>&1|cat -|grep -i jpg|sed -n 's@<img data-src=\"\\(.*\\)\\.jpg.*\"@\\1.jpg@p')|convert - -density 72x72 -size 300x300 /tmp/folder.jpg",USERAGENT,artist,album);
+	fprintf(stderr,"Cover search=%s\n",command);
 	system(command);
 	g_free(command);
 
